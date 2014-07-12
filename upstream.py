@@ -67,7 +67,7 @@ class Upstream:
 
 
 	# Download Section
-	def download(self, filehash, decryptkey = ""):
+	def download(self, filehash, decryptkey = "", destination=""):
 		"""
 		Download the file via GET from the specified node.
 
@@ -82,7 +82,10 @@ class Upstream:
 		else:
 			url = self.server + "/api/download/" + filehash + "?key=" + decryptkey
 
-		return urllib.request.urlretrieve(url, "files/" + filehash)
+		if destination == "":
+			return urllib.request.urlretrieve(url, "files/" + filehash)
+		else:
+			return urllib.request.urlretrieve(url, destination)
 
 
 # UGH

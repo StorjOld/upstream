@@ -5,10 +5,14 @@ class Shreader:
 	def __init__(self, filepath, chunk = 32):
 		"""For shreading and merging larger files to be uploaded."""
 		self.filepath = filepath
+		self.filename = os.path.split(filepath)[1]
+		print(self.filename)
 
 		self.chunkNames = []
 		self.chunkSize = chunk * 1048576 # megabytes to bytes
 		self.noOfChunks = 0
+
+		self.storjchunks = []
 
 	def shread(self):
 		"""
@@ -25,21 +29,27 @@ class Shreader:
 		for i in self.chunkNames:
 			filepath = os.path.abspath(i)
 			print(filepath)
-			result = up.upload(filepath, "json")
-			print(result)
+			result = up.upload(filepath, "tuple")
 			os.remove(filepath)
+
+			# filename, hash, decrypt key
+			tmpchunk = (os.path.split(i)[1], result[0], result[1]) 
+			self.storjchunks.append(tmpchunk)
+
+		return self.storjchunks
 
 
 	# Merge Section
-	def merge(self, fragments):
-		"""
-		Takes a JSON file with our file fragments locations and merges them all back 
-		into one file.
+	def merge(self):
+		up = Upstream("http://node1.storj.io")
 
-		Params:
-		fragments -- JSON file from shread()
-		"""
-		pass
+		for i in self.storjchunks:
+			chunkname = i[0]
+			filehash = i[1]
+			decryptkey = i[2]
+			up.download(filehash, decryptkey, "download/" + chunkname)
+
+		self.joinFiles()
 
 	def splitFile(self):
 		"""
@@ -62,7 +72,7 @@ class Shreader:
 
 		# create chunks
 		for i in range(0, bytes+1, self.chunkSize):
-			fn1 = "upload/chunk%s" % i
+			fn1 = "upload/chunk%s" % i  
 			print(fn1)
 			self.chunkNames.append(fn1)
 			f = open(fn1, 'wb')
@@ -74,32 +84,32 @@ class Shreader:
 		#f.write(inputFile+','+'chunk,'+str(noOfChunks)+','+str(chunkSize))
 		#f.close()
 
-def joinFiles(fileName,noOfChunks,chunkSize):
-	"""
-	Join the chunks of files into a single file.
-	"""
+	def joinFiles(self):
+		"""
+		Join the chunks of files into a single file.
+		"""
 
-	dataList = []
+		dataList = []
 
-	for i in range(0,noOfChunks,1):
-		chunkNum=i * chunkSize
-		chunkName = fileName+'%s'%chunkNum
-		f = open(chunkName, 'rb')
-		dataList.append(f.read())
-		f.close()
+		for i in range(0,int(self.noOfChunks),1):
+			chunkNum=i * self.chunkSize
+			chunkName = os.path.abspath('download/chunk%s'%chunkNum)
+			f = open(chunkName, 'rb')
+			dataList.append(f.read())
+			f.close()
 
-	
-	for data in dataList:
-		f = open(fileName, 'wb')
-		f.write(data)
-		f.close()
-
+		
+		for data in dataList:
+			f = open("files/" + self.filename, 'wb')
+			f.write(data)
+			f.close()
 
 
 if __name__ ==  "__main__":
 	# call the file splitting function
-	shread = Shreader("C:\\Users\\super3\\Desktop\\storj.m4v", 16)
+	shread = Shreader("C:\\Users\\super3\\Desktop\\alive.png", 16)
 	shread.shread()
+	shread.merge()
 
 	#call the function to join the splitted files
 	#joinFiles('chunk',7,110000000)
