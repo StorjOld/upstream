@@ -25,12 +25,21 @@ Possible errors:
 - "File not found."
 - "Error connecting to server."
 
+### Download Usage
+	
+	upstream.py download -u <file uri>
+
+### Download Example
+This will store it in the /file directory. 
+
+	upstream download -u 5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac?key=2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c
+
 ## Helper Functions
 Designed to solve a few Metadisk integration problems.
 
 ### parse_uri
 
-Takes the raw JSON from an uplaod request and turns in to a URI	that we can directly use in Metadisk. So it turns this:
+Takes the raw JSON from an upload request and turns in to a URI	that we can directly use in Metadisk. So it turns this:
 
 	{
 		"filehash": "5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac",

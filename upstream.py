@@ -2,6 +2,7 @@ import json
 import requests
 import argparse
 import urllib.request
+from urllib.parse import urlsplit
 
 
 class Upstream:
@@ -55,8 +56,18 @@ class Upstream:
 		data = json.loads(raw)
 		return (data['filehash'], data['key'])
 
+	def decode_uri(self, uri):
+		"""
+		Takes a URI and turns it into a hash + key tuple.
+
+		uri -- URI for the specified file.
+
+		"""
+		return str(uri).split("?key=")
+
+
 	# Download Section
-	def download(self, filehash, destination, decryptkey = ""):
+	def download(self, filehash, decryptkey = ""):
 		"""
 		Download the file via GET from the specified node.
 
@@ -66,7 +77,12 @@ class Upstream:
 		decryptkey(optional) -- The decryption key of the file we are trying to download.
 
 		"""
-		return urllib.request.urlretrieve("http://google.com", "files/" + filehash)
+		if decryptkey == "":
+			url = self.server + "/api/download/" + filehash
+		else:
+			url = self.server + "/api/download/" + filehash + "?key=" + decryptkey
+
+		return urllib.request.urlretrieve(url, "files/" + filehash)
 
 
 def upload_command():
@@ -90,6 +106,7 @@ if __name__=="__main__":
 	parser.add_argument('action')
 	parser.add_argument('-s', '--server', default="http://node1.storj.io")
 	parser.add_argument('-f', '--filepath')
+	parser.add_argument('-u', '--uri')
 	args = parser.parse_args()
 	
 	# Do Commands
@@ -98,8 +115,7 @@ if __name__=="__main__":
 		result = up.upload(args.filepath, "uri")
 		print(result)
 	elif args.action == "download":
-		filehash = "5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac"
-		decryptkey = "2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c"
+		filehash, decryptkey = up.decode_uri(args.uri)
 		result = up.download(filehash, decryptkey)
 		print(result)
 
