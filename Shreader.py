@@ -30,7 +30,7 @@ class Shreader:
 			filepath = os.path.abspath(i)
 			print(filepath)
 			result = up.upload(filepath, "tuple")
-			#os.remove(filepath)
+			os.remove(filepath)
 
 			# filename, hash, decrypt key
 			tmpchunk = (os.path.split(i)[1], result[0], result[1]) 
@@ -100,6 +100,7 @@ class Shreader:
 			f = open(chunkName, 'rb')
 			dataList.append(f.read())
 			f.close()
+			os.remove(chunkName)
 		
 		if os.path.exists("files/" + self.filename):
 			os.remove("files/" + self.filename)
