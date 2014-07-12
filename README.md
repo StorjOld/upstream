@@ -3,8 +3,8 @@ upstream
 
 Command line tool for uploading and downloading files from Metadisk.
 
-## Raw Functions
-These are the raw functions that are used to upload and download raw data to/from a node. These should be called by the application or other functions rather than being used directly. They don't encrypt the data, or account for file size limits.
+## Transfer Functions
+These are the transfer functions that are used to upload and download raw data to/from a node. These should be called by the application or other functions rather than being used directly. They don't encrypt the data, or account for file size limits.
 
 ### Upload Usage
 File is uploaded via a POST request to the [Metadisk](http://metadisk.org) node via its [web-core](https://github.com/Storj/web-core#api-documentation) API. There is currently a node running [here](https://github.com/Storj/web-core#api-documentation).
