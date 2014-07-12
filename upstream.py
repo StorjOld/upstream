@@ -85,6 +85,32 @@ class Upstream:
 		return urllib.request.urlretrieve(url, "files/" + filehash)
 
 
+	# Shread Section
+	def shread(self, path, chunk = 32):
+		"""
+		Splits up a larger file to a specified chunk size, and uploads each peice.
+		If the file is smaller than the chunks size the file will be uploaded like normal.
+		Returns us a JSON list of the filenames, hashes, and decryption keys.
+
+		Params:
+		path -- Path to the file you want to upload. 
+		chunk -- Chunk size in MB.
+
+		"""
+		pass
+
+	# Merge Section
+	def merge(self, fragments):
+		"""
+		Takes a JSON file with our file fragments locations and merges them all back 
+		into one file.
+
+		Params:
+		fragments -- JSON file from shread()
+		"""
+		pass
+
+
 def upload_command():
 	try:
 		result = upload(args.server, args.filepath)
