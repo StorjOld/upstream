@@ -110,7 +110,7 @@ class Upstream:
 		"""
 		pass
 
-
+# UGH
 def upload_command():
 	try:
 		result = upload(args.server, args.filepath)
@@ -126,6 +126,8 @@ def upload_command():
 
 if __name__=="__main__":
 	# Start ArgParse
+	# Ok most of this ArgParse stuff is pretty bad, don't 
+	# know enough about it to use it properly
 	parser = argparse.ArgumentParser()
 
 	# Add Arguments
