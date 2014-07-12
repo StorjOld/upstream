@@ -1,7 +1,7 @@
 upstream
 ========
 
-Command line tool for upload and downloading files from Metadisk.
+Command line tool for uploading and downloading files from Metadisk.
 
 ## Raw Functions
 These are the raw functions that are used to upload and download raw data to/from a node. These should be called by the application or other functions rather than being used directly. They don't encrypt the data, or account for file size limits.
