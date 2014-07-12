@@ -30,7 +30,7 @@ class Shreader:
 			filepath = os.path.abspath(i)
 			print(filepath)
 			result = up.upload(filepath, "tuple")
-			os.remove(filepath)
+			#os.remove(filepath)
 
 			# filename, hash, decrypt key
 			tmpchunk = (os.path.split(i)[1], result[0], result[1]) 
@@ -90,24 +90,28 @@ class Shreader:
 		"""
 
 		dataList = []
+		print(self.noOfChunks)
 
 		for i in range(0,int(self.noOfChunks),1):
 			chunkNum=i * self.chunkSize
 			chunkName = os.path.abspath('download/chunk%s'%chunkNum)
+			print(chunkNum)
+			print(chunkName)
 			f = open(chunkName, 'rb')
 			dataList.append(f.read())
 			f.close()
-
 		
+		if os.path.exists("files/" + self.filename):
+			os.remove("files/" + self.filename)
 		for data in dataList:
-			f = open("files/" + self.filename, 'wb')
+			f = open("files/" + self.filename, 'ab')
 			f.write(data)
 			f.close()
 
 
 if __name__ ==  "__main__":
 	# call the file splitting function
-	shread = Shreader("C:\\Users\\super3\\Desktop\\alive.png", 16)
+	shread = Shreader("C:\\Users\\super3\\Desktop\\b2e5b96_Test_2.pdf", 1)
 	shread.shread()
 	shread.merge()
 
