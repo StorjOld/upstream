@@ -1,10 +1,14 @@
+import os
 from Upstream import Upstream
 
 class Shreader:
 	def __init__(self, filepath, chunk = 32):
 		"""For shreading and merging larger files to be uploaded."""
 		self.filepath = filepath
-		self.chunk = 32 # MB
+
+		self.chunkNames = []
+		self.chunkSize = chunk * 1048576 # megabytes to bytes
+		self.noOfChunks = 0
 
 	def shread(self):
 		"""
@@ -12,7 +16,19 @@ class Shreader:
 		If the file is smaller than the chunks size the file will be uploaded like normal.
 		Returns us a JSON list of the filenames, hashes, and decryption keys.
 		"""
-		pass
+
+		# Split File Up
+		self.splitFile()
+
+		# Upload File
+		up = Upstream("http://node1.storj.io")
+		for i in self.chunkNames:
+			filepath = os.path.abspath(i)
+			print(filepath)
+			result = up.upload(filepath, "json")
+			print(result)
+			os.remove(filepath)
+
 
 	# Merge Section
 	def merge(self, fragments):
@@ -25,41 +41,39 @@ class Shreader:
 		"""
 		pass
 
-def splitFile(inputFile,chunkSize):
-	"""
-	Function to split the file into smaller chunks.
-	From: http://bdurblg.blogspot.com/2011/06/python-split-any-file-binary-to.html
+	def splitFile(self):
+		"""
+		Function to split the file into smaller chunks.
+		From: http://bdurblg.blogspot.com/2011/06/python-split-any-file-binary-to.html
 
-	"""
-
-	# read the contents of the file
-	f = open(inputFile, 'rb')
-	data = f.read() # read the entire content of the file
-	f.close()
-
-	# get the length of data, ie size of the input file in bytes
-	bytes = len(data)
-
-	# calculate the number of chunks to be created
-	noOfChunks= bytes/chunkSize
-	if(bytes%chunkSize):
-		noOfChunks+=1
-
-	# create chunks
-	chunkNames = []
-	for i in range(0, bytes+1, chunkSize):
-		fn1 = "upload/chunk%s" % i
-		chunkNames.append(fn1)
-		f = open(fn1, 'wb')
-		f.write(data[i:i+ chunkSize])
+		"""
+		# read the contents of the file
+		f = open(self.filepath, 'rb')
+		data = f.read() # read the entire content of the file
 		f.close()
 
-	#create a info.txt file for writing metadata
-	f = open('info.txt', 'w')
-	f.write(inputFile+','+'chunk,'+str(noOfChunks)+','+str(chunkSize))
-	f.close()
+		# get the length of data, ie size of the input file in bytes
+		bytes = len(data)
 
-#define 
+		# calculate the number of chunks to be created
+		self.noOfChunks = bytes/self.chunkSize
+		if(bytes%self.chunkSize):
+			self.noOfChunks+=1
+
+		# create chunks
+		for i in range(0, bytes+1, self.chunkSize):
+			fn1 = "upload/chunk%s" % i
+			print(fn1)
+			self.chunkNames.append(fn1)
+			f = open(fn1, 'wb')
+			f.write(data[i:i+ self.chunkSize])
+			f.close()
+
+		#create a info.txt file for writing metadata
+		#f = open('info.txt', 'w')
+		#f.write(inputFile+','+'chunk,'+str(noOfChunks)+','+str(chunkSize))
+		#f.close()
+
 def joinFiles(fileName,noOfChunks,chunkSize):
 	"""
 	Join the chunks of files into a single file.
@@ -72,19 +86,20 @@ def joinFiles(fileName,noOfChunks,chunkSize):
 		chunkName = fileName+'%s'%chunkNum
 		f = open(chunkName, 'rb')
 		dataList.append(f.read())
-	f.close()
+		f.close()
 
-	f = open(fileName, 'wb')
+	
 	for data in dataList:
+		f = open(fileName, 'wb')
 		f.write(data)
-	f.close()
-
+		f.close()
 
 
 
 if __name__ ==  "__main__":
 	# call the file splitting function
-	splitFile("C:\\Users\\super3\\Desktop\\storj.m4v", 33554432)
+	shread = Shreader("C:\\Users\\super3\\Desktop\\storj.m4v", 16)
+	shread.shread()
 
 	#call the function to join the splitted files
 	#joinFiles('chunk',7,110000000)
