@@ -80,12 +80,11 @@ def joinFiles(fileName,noOfChunks,chunkSize):
 	f.close()
 
 
-	# call the file splitting function
 
-	splitFile('1.mkv',110000000)
-
-	#call the function to join the splitted files
-	joinFiles('chunk',7,110000000)
 
 if __name__ ==  "__main__":
+	# call the file splitting function
 	splitFile("C:\\Users\\super3\\Desktop\\storj.m4v", 33554432)
+
+	#call the function to join the splitted files
+	#joinFiles('chunk',7,110000000)
