@@ -35,3 +35,48 @@ class Chunk:
 
 	def get_json(self):
 		return json.dumps({"filehash": self.filehash, "key":  self.decryptkey})
+
+def run_gets(chunk):
+	chunk.get_uri()
+	chunk.get_tuple()
+	chunk.get_json()
+
+def unit_test():
+	# Some values
+	filehash = "5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac"
+	decryptkey = "2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c"
+
+	# Create empty object
+	empty_chunk = Chunk()
+	# Create half object
+	half_chunk = Chunk(filehash)
+	# Create full object
+	full_chunk = Chunk(filehash, decryptkey)
+
+	# Run getters 
+	run_gets(empty_chunk)
+	run_gets(half_chunk)
+	run_gets(full_chunk)
+
+	# Create new objects
+	chunk1 = Chunk()
+	chunk2 = Chunk()
+
+	# Load content
+	raw_json = """
+	{ 
+		"key": "2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c",
+		"filehash": "5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac"
+	}
+	"""
+	chunk1.load_json(raw_json)
+	raw_uri = "5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac?key=2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c"
+	chunk2.load_uri(raw_uri)
+
+	# Fit everything into one test case
+	assert(chunk1.get_tuple()==chunk2.get_tuple())
+	print(full_chunk.get_json())
+
+
+if __name__ == "__main__":
+	unit_test()
