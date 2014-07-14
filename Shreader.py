@@ -112,7 +112,7 @@ class Shreader:
 
 if __name__ ==  "__main__":
 	# call the file splitting function
-	shread = Shreader("C:\\Users\\super3\\Desktop\\b2e5b96_Test_2.pdf", 1)
+	shread = Shreader("E:\\Users\\super_000\\Videos\\Planetside2\\PS2Video_0001.avi", 64)
 	shread.shread()
 	shread.merge()
 

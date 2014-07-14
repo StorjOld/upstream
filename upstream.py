@@ -5,85 +5,120 @@ import urllib.request
 from urllib.parse import urlsplit
 
 
-class Upstream:
-	def __init__(self, server):
-		"""For uploading and downloading files from Metadisk."""
-		self.server = server # TODO: Check server connection
-
-
-	# Upload Section
-	def upload(self, path, output="uri"):
+class Chunk:
+	def __init__(self, filehash = "", decryptkey = ""):
 		"""
-		Uploads a file via POST to the specified node. 
+		Stores information about an encryted chunk. Allows for
+		format conversions. 
 
 		Params:
-		path -- The path to the file you want to upload. 
+			filehash -- The hash for a file.
+			decryptkey -- The decryption key for a file.
 
 		"""
-		# Open the file and upload it
+		self.filehash = filehash
+		self.decryptkey = decryptkey
+
+	# Loads
+	def load_uri(self, raw):
+		self.filehash, self.decryptkey = str(raw).split("?key=")
+		return self
+
+	def load_json(self, raw):
+		self.raw_json = raw
+		data = json.loads(raw)
+		self.filehash = data['filehash'] 
+		self.decryptkey = data['key']
+		return self
+
+	# Gets
+	def get_uri(self):
+		return self.filehash + "?key=" + self.decryptkey
+
+	def get_tuple(self):
+		return (self.filehash, self.decryptkey)
+
+	def get_json(self):
+		return json.dumps({"filehash": self.filehash, "key":  self.decryptkey})
+
+
+class Upstream:
+	def __init__(self, server):
+		"""
+		For uploading and downloading files from Metadisk.
+
+		Params:
+			server -- URL to the Metadisk server.
+
+		"""
+		self.server = server
+		self.check_connectivity()
+
+	def check_connectivity(self):
+		"""
+		Check to see if we even get a connection to the server. 
+		https://stackoverflow.com/questions/3764291/checking-network-connection
+
+		"""
+		try:
+			urllib.request.urlopen(self.server, timeout=1)
+		except urllib.request.URLError:
+			raise LookupError("Could not connect to server.")
+
+	# Upload Section
+	def upload(self, path):
+		"""
+		Uploads a file via POST to the specified node. 
+		https://github.com/storj/web-core
+
+		Params:
+			path -- The path to the file you want to upload. 
+
+		"""
+		# Open the file and upload it via POST
 		files = {'file': open(path, 'rb')}
 		url = self.server + "/api/upload" # web-core API
 		r = requests.post(url, files=files)
-		# make sure that the url is actually valid
-		if r.status_code == 404: raise LookupError
-		else:
-			# everthing checked out, select format
-			# and then return it 
-			if output == "json": return r.text
-			elif output == "uri": return self.parse_uri(r.text)
-			else: return self.parse_tuple(r.text)
 
-	def parse_uri(self, raw):
-		"""
-		Takes the raw JSON from an upload request and turns in to a URI
-		that we can directly use in Metadisk.
-
-		Params:
-		raw -- JSON data from upload()
-		"""
-		data = json.loads(raw)
-		return data['filehash'] + "?key=" + data['key']
-
-	def parse_tuple(self, raw):
-		"""
-		Takes the raw JSON from an upload request and turns in to a tuple so
-		we can use in our application.
-
-		Params:
-		raw -- JSON data from upload()
-		"""
-
-		data = json.loads(raw)
-		return (data['filehash'], data['key'])
-
-	def decode_uri(self, uri):
-		"""
-		Takes a URI and turns it into a hash + key tuple.
-
-		uri -- URI for the specified file.
-
-		"""
-		return str(uri).split("?key=")
+		# Make sure that the API call is actually there
+		if r.status_code == 404: 
+			raise LookupError("API call not found.")
+		elif r.status_code == 402:
+			raise LookupError("Payment required.")
+		elif r.status_code == 500:
+			raise LookupError("Server error.")
+		elif r.status_code == 201:
+			# Everthing checked out, return result
+			# based on the format selected
+			return Chunk().load_json(r.text)
+		else: 
+			raise LookupError("Unknown status code.")
 
 
 	# Download Section
-	def download(self, filehash, decryptkey = "", destination=""):
+	def download(self, chunk, destination=""):
 		"""
 		Download the file via GET from the specified node.
+		https://github.com/storj/web-core
 
 		Params:
-		filehash -- The hash of the file that we are trying to download.
-		destination -- Path where we store the file. 
-		decryptkey(optional) -- The decryption key of the file we are trying to download.
+			filehash -- The hash of the file that we are trying to download.
+			destination -- Path where we store the file. 
+			decryptkey(optional) -- The decryption key of the file we are 
+			trying to download.
 
 		"""
-		if decryptkey == "":
-			url = self.server + "/api/download/" + filehash
-		else:
-			url = self.server + "/api/download/" + filehash + "?key=" + decryptkey
 
+		# Generate request URL
+		if chunk.decryptkey == "":
+			url = self.server + "/api/download/" + chunk.filehash
+		else:
+			url = self.server + "/api/download/" + chunk.get_uri()
+
+		# Retreive chunk from the server and pass it the default file directory
+		# or override it to a particular place
 		if destination == "":
-			return urllib.request.urlretrieve(url, "files/" + filehash)
+			return urllib.request.urlretrieve(url, "files/" + chunk.filehash)
 		else:
 			return urllib.request.urlretrieve(url, destination)
 
