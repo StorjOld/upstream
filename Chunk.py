@@ -36,6 +36,8 @@ class Chunk:
 	def get_json(self):
 		return json.dumps({"filehash": self.filehash, "key":  self.decryptkey})
 
+
+# Unit Testing
 def run_gets(chunk):
 	chunk.get_uri()
 	chunk.get_tuple()
@@ -79,4 +81,9 @@ def unit_test():
 
 
 if __name__ == "__main__":
-	unit_test()
+	try:
+		unit_test()
+	except AssertionError:
+		print("Testing Failed...")
+	else:
+		print("Testing Passed...")

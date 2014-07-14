@@ -29,48 +29,26 @@ The chunk class is for stores information about an encrypted chunk, including it
 * Chunk.get_json()
 
 ## Upstream Class
-These are the transfer functions that are used to upload and download raw data to/from a node. These should be called by the application or other functions rather than being used directly. They don't encrypt the data, or account for file size limits.
+These are the transfer functions that are used to upload and download raw data to/from a node.
 
 ### Upload Usage
-File is uploaded via a POST request to the [Metadisk](http://metadisk.org) node via its [web-core](https://github.com/Storj/web-core#api-documentation) API. There is currently a node running [here](https://github.com/Storj/web-core#api-documentation).
 
-	upstream.py upload -s <node url> -f <file path>
+	Upstream.upload(path) 
 
 ### Upload Example
+File is uploaded via a POST request to the [Metadisk](http://metadisk.org) node via its [web-core](https://github.com/Storj/web-core#api-documentation) API. There is currently a node running [here](https://github.com/Storj/web-core#api-documentation). Returns a Chunk object.
 
-	upstream.py -f "C:\test.txt"
-
-### Upload Result
-The upload should return the hash for the file, as well the decryption key in URI format. 
-
-	5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac?key=2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c
-
-Possible errors:
-
-- "File not found."
-- "Error connecting to server."
+	up = Upstream("http://node1.storj.io")
+	chunk = up.upload("C:\\Users\\super3\\Code\\upstream\\test.txt")
 
 ### Download Usage
-	
-	upstream.py download -u <file uri>
+
+	Upstream.upload(Chunk, destination) 
 
 ### Download Example
-This will store it in the /file directory. 
-
-	upstream download -u 5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac?key=2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c
-
-## Helper Functions
-Designed to solve a few Metadisk integration problems.
-
-### parse_uri
-
-Takes the raw JSON from an upload request and turns in to a URI	that we can directly use in Metadisk. So it turns this:
-
-	{
-		"filehash": "5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac",
-		"key": "2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c"
-	}
-
-into this:
-
-	5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac?key=2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c
+	
+	up = Upstream("http://node1.storj.io")
+	filehash = "5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac"
+	decryptkey = "2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c"
+	get_chunk = Chunk(filehash, decryptkey)
+	up.download(get_chunk, "C:\\Users\\super3\\Code\\upstream\\files\\test.txt")

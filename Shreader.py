@@ -1,5 +1,4 @@
 import os
-from Upstream import Upstream
 
 class Shreader:
 	def __init__(self, filepath, chunk = 32):
