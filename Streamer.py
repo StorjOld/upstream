@@ -78,7 +78,7 @@ class Streamer:
 
 		return chunk_list, shredder_data
 
-	def download(self, chunk_list, shredder_data, destination=""):
+	def download(self, chunk_list, shredder_data = None, destination=""):
 		"""Download a chunk via GET from the specified node."""
 
 		if len(chunk_list) <= 0:

@@ -1,13 +1,13 @@
 import os
 
 class Shredder:
-	def __init__(self, filepath, chunk):
+	def __init__(self, filepath, chunk_size):
 		"""For shreding and merging larger files to be uploaded."""
 		self.filepath = filepath
 		self.filename = os.path.split(filepath)[1]
 
 		self.chunk_names = []
-		self.chunk_size = chunk
+		self.chunk_size = chunk_size
 		self.num_chunks = 0
 
 	def shred_chunks(self):
