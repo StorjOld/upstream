@@ -72,7 +72,7 @@ File is uploaded via a POST request to the [Metadisk](http://metadisk.org) node 
 For shredding and merging larger files to be uploaded via Upstream. 
 
 ### Full Spec
-	* Shredder(filepath, chunk)
-	* Shredder.shred_chunks()
-	* Shredder.merge_chunks()
-	
+
+* Shredder(filepath, chunk)
+* Shredder.shred_chunks()
+* Shredder.merge_chunks()
