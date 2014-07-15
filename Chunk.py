@@ -1,7 +1,7 @@
 import json
 
 class Chunk:
-	def __init__(self, filehash = "", decryptkey = ""):
+	def __init__(self, filehash = "", decryptkey = "", filename = "", filepath = ""):
 		"""
 		Stores information about an encryted chunk. Allows for
 		format conversions. 
@@ -9,10 +9,15 @@ class Chunk:
 		Params:
 			filehash -- The hash for a file.
 			decryptkey -- The decryption key for a file.
+			filename -- Name of the file(destroyed on encryption).
+			filepath -- Location of the file.
 
 		"""
 		self.filehash = filehash
 		self.decryptkey = decryptkey
+
+		self.filename = filename
+		self.filepath = filepath
 
 	# Loads
 	def load_uri(self, raw):
@@ -35,6 +40,19 @@ class Chunk:
 
 	def get_json(self):
 		return json.dumps({"filehash": self.filehash, "key":  self.decryptkey})
+
+	# Extra metadata
+	def set_filename(self, filename):
+		self.filename = filename
+	
+	def set_filepath(self, filepath):
+		self.filepath = filepath
+
+	def get_filename(self):
+		return self.filename
+
+	def get_filepath(self):
+		return self.filepath		
 
 
 # Unit Testing
@@ -77,7 +95,6 @@ def unit_test():
 
 	# Fit everything into one test case
 	assert(chunk1.get_tuple()==chunk2.get_tuple())
-	print(full_chunk.get_json())
 
 
 if __name__ == "__main__":
