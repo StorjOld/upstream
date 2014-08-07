@@ -9,5 +9,7 @@ setup(
     author_email='info@storj.io',
     description='Command line tool for uploading and downloading files from Metadisk',
     packages=['upstream'],
-
+    install_requires=[
+        'requests'
+    ]
 )
