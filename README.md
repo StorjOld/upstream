@@ -1,6 +1,8 @@
 upstream
 ========
 
+[![Build Status](https://drone.io/github.com/angstwad/upstream/status.png)](https://drone.io/github.com/angstwad/upstream/latest)
+
 Command line tool for uploading and downloading files from Metadisk.
 
 ## Chunk Class
