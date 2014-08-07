@@ -21,8 +21,8 @@ args = parser.parse_args()
 # Do Commands
 stream = Streamer("http://node1.storj.io")
 if args.action == "upload":
-	chunk_list, shredder_data = stream.upload(args.filepath)
+    chunk_list, shredder_data = stream.upload(args.filepath)
 elif args.action == "download":
-	chunk = [Chunk().load_uri(args.uri)]
-	if args.destination == "": result = stream.download(chunk)
-	else: result = stream.download(chunk, None, args.destination)
+    chunk = [Chunk().load_uri(args.uri)]
+    if args.destination == "": result = stream.download(chunk)
+    else: result = stream.download(chunk, None, args.destination)
