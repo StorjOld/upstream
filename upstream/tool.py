@@ -1,10 +1,10 @@
 import argparse
 
-from Chunk import Chunk
+from chunk import Chunk
 
 
 # Parser Object
-from upstream import Streamer
+from upstream import streamer
 
 parser = argparse.ArgumentParser()
 
@@ -19,7 +19,7 @@ parser.add_argument('-d', '--destination')
 args = parser.parse_args()
 
 # Do Commands
-stream = Streamer("http://node1.storj.io")
+stream = streamer("http://node1.storj.io")
 if args.action == "upload":
     chunk_list, shredder_data = stream.upload(args.filepath)
 elif args.action == "download":

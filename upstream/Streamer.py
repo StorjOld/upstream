@@ -2,8 +2,8 @@ import os
 
 import requests
 import urllib.request
-from Shredder import Shredder
-from upstream import Chunk
+from shredder import Shredder
+from upstream import chunk
 
 
 class Streamer:
@@ -113,7 +113,7 @@ class Streamer:
         elif r.status_code == 201:
             # Everthing checked out, return result
             # based on the format selected
-            return Chunk().load_json(r.text)
+            return chunk().load_json(r.text)
         else:
             raise LookupError("Unknown status code.")
 
@@ -169,7 +169,7 @@ def unit_test_download_chunk(stream):
     # Make chunk
     filehash = "5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac"
     decryptkey = "2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c"
-    get_chunk = Chunk(filehash, decryptkey)
+    get_chunk = chunk(filehash, decryptkey)
 
     # Download Chunk
     stream.download_chunk(get_chunk, "C:\\Users\\super3\\Code\\upstream\\files\\test.txt")
