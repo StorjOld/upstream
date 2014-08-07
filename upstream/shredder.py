@@ -1,5 +1,6 @@
 import os
 
+
 class Shredder:
     def __init__(self, filepath, chunk_size):
         """For shreding and merging larger files to be uploaded."""
@@ -46,7 +47,6 @@ class Shredder:
         http://bdurblg.blogspot.com/2011/06/python-split-any-file-binary-to.html
 
         """
-
         dataList = []
 
         for i in range(0,int(self.num_chunks),1):

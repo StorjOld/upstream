@@ -1,10 +1,17 @@
 import os
+try:
+    from urllib import urlretrieve
+except ImportError:
+    from urllib.request import urlretrieve
+try:
+    from urllib2 import urlopen, URLError
+except ImportError:
+    from urllib.retrieve import urlopen, URLError
 
 import requests
-import urllib.request
 
-from shredder import Shredder
-from upstream import chunk
+import shredder
+import upstream
 
 
 class Streamer:
@@ -45,14 +52,14 @@ class Streamer:
 
         """
         try:
-            urllib.request.urlopen(self.server, timeout=1)
-        except urllib.request.URLError:
+            urlopen(self.server, timeout=1)
+        except URLError:
             raise LookupError("Could not connect to server.")
 
     def upload(self, path):
         """Uploads a chunk via POST to the specified node."""
         chunk_list = []
-        shredder_data = Shredder(path, self.chunk_size)
+        shredder_data = shredder.Shredder(path, self.chunk_size)
 
         # megabytes to bytes to see if its smaller than a chunk
         if os.path.getsize(path) < self.chunk_size:
@@ -89,7 +96,6 @@ class Streamer:
                 self.download_chunk(chunk, "download/" + chunk.filename)
             shredder_data.merge_chunks()
 
-
     def upload_chunk(self, path):
         """
         Uploads a chunk via POST to the specified node.
@@ -114,7 +120,7 @@ class Streamer:
         elif r.status_code == 201:
             # Everthing checked out, return result
             # based on the format selected
-            return chunk().load_json(r.text)
+            return upstream.chunk().load_json(r.text)
         else:
             raise LookupError("Unknown status code.")
 
@@ -135,71 +141,9 @@ class Streamer:
         else:
             url = self.server + "/api/download/" + chunk.get_uri()
 
-        # Retreive chunk from the server and pass it the default file directory
+        # Retrieve chunk from the server and pass it the default file directory
         # or override it to a particular place
         if destination == "":
-            return urllib.request.urlretrieve(url, "files/" + chunk.filehash)
+            return urlretrieve(url, "files/" + chunk.filehash)
         else:
-            return urllib.request.urlretrieve(url, destination)
-
-
-# Unit Testing
-def unit_test_upload_chunk(stream):
-    # Upload file and check file
-    chunk = stream.upload_chunk("C:\\Users\\super3\\Code\\upstream\\test.txt")
-    assert(chunk.filehash == "5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac")
-    assert(chunk.decryptkey == "2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c")
-
-    # Connect to wrong server
-    try:
-        test = Streamer("http://blah.storj.io")
-    except LookupError:
-        assert(True)
-    else:
-        assert(False)
-
-    # Try to upload wrong file
-    try:
-        chunk = stream.upload_chunk("blah")
-    except FileNotFoundError:
-        assert(True)
-    else:
-        assert(False)
-
-def unit_test_download_chunk(stream):
-    # Make chunk
-    filehash = "5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac"
-    decryptkey = "2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c"
-    get_chunk = chunk(filehash, decryptkey)
-
-    # Download Chunk
-    stream.download_chunk(get_chunk, "C:\\Users\\super3\\Code\\upstream\\files\\test.txt")
-
-def unit_test_upload(stream):
-    # Upload smaller file
-    print("Uploading Test 1...")
-    stream.upload("E:\\Users\\super_000\\Videos\\Planetside2\\PS2Video_0009.avi")
-
-    # Upload smaller file
-    print("Uploading Test 2...")
-    # Override chunk settings so we don't have a long upload
-    stream.set_chunk_size(1)
-    chunk_list, shredder_data = stream.upload("E:\\Users\\super_000\\Videos\\Planetside2\\PS2Video_0009.avi")
-
-    return chunk_list, shredder_data
-
-def unit_test_download(stream, chunk_list, shredder_data):
-    stream.download(chunk_list, shredder_data)
-
-
-if __name__ == "__main__":
-    try:
-        stream = Streamer("http://node1.storj.io")
-        unit_test_upload_chunk(stream)
-        unit_test_download_chunk(stream)
-        chunk_list,shredder_data = unit_test_upload(stream)
-        unit_test_download(stream, chunk_list, shredder_data)
-    except AssertionError:
-        print("Testing Failed...")
-    else:
-        print("Testing Passed...")
+            return urlretrieve(url, destination)
