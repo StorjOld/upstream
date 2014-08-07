@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+# Copyright 2014 Paul Durivage <paul.durivage@gmail.com>
+# All Rights Reserved
+
 import json
 import unittest
 

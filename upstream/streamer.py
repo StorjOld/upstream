@@ -2,6 +2,7 @@ import os
 
 import requests
 import urllib.request
+
 from shredder import Shredder
 from upstream import chunk
 
@@ -21,7 +22,7 @@ class Streamer:
 
     def get_server(self):
         """Get the current server we are connecting to."""
-        return server
+        return self.server
 
     def set_server(self, server):
         """Set the current server we are connecting to."""
