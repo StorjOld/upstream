@@ -1,12 +1,10 @@
 import os
-import json
-import requests
-import argparse
-import urllib.request
-from urllib.parse import urlsplit
 
-from Chunk import Chunk
+import requests
+import urllib.request
 from Shredder import Shredder
+from upstream import Chunk
+
 
 class Streamer:
 	def __init__(self, server, chunk_size = 32):

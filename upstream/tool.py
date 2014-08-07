@@ -1,8 +1,11 @@
 import argparse
+
 from Chunk import Chunk
-from Streamer import Streamer
+
 
 # Parser Object
+from upstream import Streamer
+
 parser = argparse.ArgumentParser()
 
 # Add Arguments
