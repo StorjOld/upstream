@@ -15,10 +15,8 @@ class Shredder:
         self.num_chunks = 0
 
     def shred_chunks(self):
-        """
-        Split the file into smaller chunks.
+        """ Split the file into smaller chunks.
         http://bdurblg.blogspot.com/2011/06/python-split-any-file-binary-to.html
-
         """
         # read the contents of the file
         f = open(self.filepath, 'rb')
@@ -45,10 +43,8 @@ class Shredder:
         return self.chunk_names
 
     def merge_chunks(self):
-        """
-        Join the chunks of files into a single file.
+        """ Join the chunks of files into a single file.
         http://bdurblg.blogspot.com/2011/06/python-split-any-file-binary-to.html
-
         """
         dataList = []
 
