@@ -1,18 +1,18 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import json
 
 
 class Chunk:
     def __init__(self, filehash = "", decryptkey = "", filename = "", filepath = ""):
-        """
-        Stores information about an encryted chunk. Allows for
+        """ Stores information about an encryted chunk. Allows for
         format conversions.
 
-        Params:
-            filehash -- The hash for a file.
-            decryptkey -- The decryption key for a file.
-            filename -- Name of the file(destroyed on encryption).
-            filepath -- Location of the file.
-
+        :param filehash: The hash for a file.
+        :param decryptkey: The decryption key for a file.
+        :param filename: Name of the file(destroyed on encryption).
+        :param filepath:  Location of the file.
         """
         self.filehash = filehash
         self.decryptkey = decryptkey
