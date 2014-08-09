@@ -117,3 +117,8 @@ class TestStreamer(unittest.TestCase):
 
     def test_download(self, stream):
         self.stream.download(self.chunk_list, self.shredder_data)
+
+
+# TODO: Obviously, this should be done
+class TestShredder(unittest.TestCase):
+    pass
