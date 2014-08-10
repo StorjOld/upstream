@@ -16,6 +16,7 @@ setup(
     description='Command line tool for uploading and downloading files from Metadisk',
     packages=['upstream'],
     install_requires=[
-        'requests'
+        'requests',
+        'requests-toolbelt'
     ]
 )
