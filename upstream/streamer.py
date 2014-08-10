@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import os
+
+import requests
 from requests_toolbelt import MultipartEncoder
 
-from upstream.exc import FileError
-
+from upstream.chunk import Chunk
+from upstream.exc import FileError, ResponseError, ConnectError
 
 try:
     from urllib import urlretrieve
