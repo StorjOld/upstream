@@ -21,10 +21,16 @@ class Chunk(object):
         self.filename = filename
         self.filepath = filepath
 
-    # Loads
-    def load_uri(self, raw):
-        self.filehash, self.decryptkey = str(raw).split("?key=")
-        return self
+    def from_uri(self, uri):
+        """
+
+        :param uri: URI as a string
+        :return:
+        """
+        try:
+            self.filehash, self.decryptkey = str(uri).split("?key=")
+        except:
+            raise ChunkError("%s not format of <hash>?key=<key>")
 
     def load_json(self, raw):
         self.raw_json = raw
