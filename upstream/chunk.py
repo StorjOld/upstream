@@ -63,15 +63,8 @@ class Chunk(object):
     def has_hashes(self):
         return self.filehash and self.decryptkey
 
-    # Extra metadata
     def set_filename(self, filename):
         self.filename = filename
 
     def set_filepath(self, filepath):
         self.filepath = filepath
-
-    def get_filename(self):
-        return self.filename
-
-    def get_filepath(self):
-        return self.filepath
