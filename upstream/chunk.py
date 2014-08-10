@@ -38,10 +38,10 @@ class Chunk(object):
         self.filehash = data['filehash']
         self.decryptkey = data['key']
 
-    # Gets
-    def get_uri(self):
-        if not self.has_hashes():
-            return
+    @property
+    def uri(self):
+        if not self.has_hashes:
+            raise ChunkError("Missing filehash or decryptkey")
         return self.filehash + "?key=" + self.decryptkey
 
     def get_hashes(self):
