@@ -32,12 +32,11 @@ class Chunk(object):
         except:
             raise ChunkError("%s not format of <hash>?key=<key>")
 
-    def load_json(self, raw):
-        self.raw_json = raw
-        data = json.loads(raw)
+    def from_json(self, json_str):
+        self.json_str = json_str
+        data = json.loads(json_str)
         self.filehash = data['filehash']
         self.decryptkey = data['key']
-        return self
 
     # Gets
     def get_uri(self):
