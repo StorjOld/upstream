@@ -40,19 +40,7 @@ class Streamer(object):
         except URLError:
             raise ConnectError("Could not connect to server.")
 
-    def download(self, chunk_list, shredder_data = None, destination=""):
-        """Download a chunk via GET from the specified node."""
-
-        if len(chunk_list) <= 0:
-            pass
-        elif len(chunk_list) == 1:
-            self._download_chunk(chunk_list[0], destination)
-        else:
-            for chunk in chunk_list:
-                self._download_chunk(chunk, "download/" + chunk.filename)
-            shredder_data.merge_chunks()
-
-    def upload(self, path):
+    def upload(self, filepath):
         """ Uploads a chunk via POST to the specified node
         to the web-core API.  See API docs:
         https://github.com/Storj/web-core#api-documentation
