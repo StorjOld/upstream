@@ -8,6 +8,7 @@ import json
 import unittest
 
 from upstream.chunk import Chunk
+from upstream.exc import ConnectError, FileError
 from upstream.streamer import Streamer
 
 
@@ -93,27 +94,27 @@ class TestStreamer(unittest.TestCase):
         self.chunk = self.stream.upload("1k.testfile")
         self.assertEqual(
             self.chunk.filehash,
-            "f07b1202c982cf8e3e85d80c921a609e"
-            "f3321e84373a14579c22359ed888bdc6")
+            "2032e4fd19d4ab49a74ead0984a5f672"
+            "c26e60da6e992eaf51f05dc874e94bd7")
         self.assertEqual(
             self.chunk.decryptkey,
-            "2b77e64156f9f7eb16d74b98f70417e4"
-            "d665d977d0ef00e793d41767acf13e8c")
+            "1b1f463cef1807a127af668f3a4fdcc7"
+            "977c647bf2f357d9fa125f13548b1d14")
 
         # Connect to wrong server
         def _failing_connection():
-            Streamer("http://blah.storj.io")
+            Streamer("http://does.not.exist")
 
-        self.assertRaises(LookupError, _failing_connection())
+        self.assertRaises(ConnectError, _failing_connection)
 
         # Try to upload wrong file
         def _failing_upload():
-            self.stream.upload("blah")
-        self.assertRaises(LookupError, _failing_upload())
+            self.stream.upload("not-a-real-file")
+        self.assertRaises(FileError, _failing_upload)
 
     # def test_download_chunk(self):
     #     # Make chunk
-    #     filehash = ("f07b1202c982cf8e3e85d80c921a609ef3321e84373a14579c22359ed888bdc6")
+    #     filehash = ("bc839c0f9195028d375d652e72a5d08d293eefd22868493185f084bc4aa61d00")
     #     decryptkey = ("2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c")
     #     get_chunk = self.chunk(filehash, decryptkey)
     #
