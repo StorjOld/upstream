@@ -70,23 +70,48 @@ class Streamer(object):
             raise ResponseError("Received status code %s %s"
                                 % (r.status_code, r.reason))
 
-    def download(self, chunk_list, shredder_data=None, destination=""):
-        """Download a chunk via GET from the specified node.
+    def download(self, chunk, dest=None, chunksize=1024):
+        """ Downloads a file from the web-core API.
 
-        :param chunk_list:
-        :param shredder_data:
-        :param destination:
+        :param chunk: upstream.chunk.Chunk instance
+        :param dest: Path to place file as string, otherwise save to CWD using
+        filehash as filename
+        :param chunksize: Size of chunks to write to disk in bytes
+        :return: True if success, else None
+        :raise FileError: If dest is not a valid filepath or if already exists
         """
-        if len(chunk_list) <= 0:
-            pass
-        elif len(chunk_list) == 1:
-            self._download_chunk(chunk_list[0], destination)
-        else:
-            for chunk in chunk_list:
-                self._download_chunk(chunk, "download/" + chunk.filename)
-            shredder_data.merge_chunks()
+        try:
+            assert chunk.filehash
+        except AssertionError:
+            raise ChunkError()
 
-    def check_path(self, filepath):
+        if dest:
+            try:
+                assert not os.path.exists(dest)
+            except AssertionError:
+                raise FileError('%s already exists' % dest)
+
+            path, fname = os.path.split(dest)
+            if not path:
+                path = os.path.abspath(os.getcwd())
+
+            try:
+                assert os.path.isdir(path)
+            except AssertionError:
+                raise FileError('%s is not a valid path' % path)
+        else:
+            path = os.abspath(os.getcwd())
+            fname = chunk.filename or chunk.filehash
+        savepath = os.path.join(path, fname)
+        url = "%s/api/download/%s" % (self.server, chunk.uri)
+        resp = requests.get(url, stream=True)
+        if resp.status_code == 200:
+            with open(savepath, 'wb') as f:
+                for chunk in resp.iter_content(chunksize):
+                    f.write(chunk)
+            return True
+
+    def _upload_check_path(self, filepath):
         """ Expands and validates a given path to a file and returns it
 
         :param filepath: Path to file as string
@@ -107,7 +132,7 @@ class Streamer(object):
         :param filepath: Path to file as string
         :return: requests.Response
         """
-        validpath = self.check_path(filepath)
+        validpath = self._upload_check_path(filepath)
         m = MultipartEncoder(
             {
                 'file': ('testfile', open(validpath, 'rb'))
