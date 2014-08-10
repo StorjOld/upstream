@@ -18,23 +18,15 @@ try:
 except ImportError:
     from urllib.retrieve import urlopen, URLError
 
-import requests
-
-from upstream.chunk import Chunk
-
-
-MEGABYTE = 1048576
-
 
 class Streamer(object):
-    def __init__(self, server, chunksize=MEGABYTE):
+
+    def __init__(self, server):
         """ For uploading and downloading files from Metadisk.
 
         :param server: URL to the Metadisk server
-        :param chunk_size: In bytes of stream in bytes
         """
         self.server = server
-        self.chunk_size = chunksize
         self.check_connectivity()
 
     def check_connectivity(self):
@@ -65,7 +57,9 @@ class Streamer(object):
         to the web-core API.  See API docs:
         https://github.com/Storj/web-core#api-documentation
 
-        :param path: Path to file as a string
+        :param filepath: Path to file as a string
+        :return: upstream.chunk.Chunk
+        :raise LookupError: IF
         """
         # Open the file and upload it via POST
         url = self.server + "/api/upload"  # web-core API
@@ -99,10 +93,8 @@ class Streamer(object):
         """ Download a chunk via GET from the specified node.
         https://github.com/storj/web-core
 
-        Params:
-            chunk -- Information about the chunk to download.
-            destination(optional) -- Path where we store the file.
-
+        :param chunk: Information about the chunk to download.
+        :param destination: Path where we store the file.
         """
 
         # Generate request URL
