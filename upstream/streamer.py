@@ -38,7 +38,7 @@ class Streamer(object):
         try:
             urlopen(self.server, timeout=1)
         except URLError:
-            raise LookupError("Could not connect to server.")
+            raise ConnectError("Could not connect to server.")
 
     def download(self, chunk_list, shredder_data = None, destination=""):
         """Download a chunk via GET from the specified node."""
@@ -110,11 +110,11 @@ class Streamer(object):
         else:
             return urlretrieve(url, destination)
 
-    def filestream(self, filepath):
+    def _filestream(self, filepath):
         """ Streaming file generator
 
         :param filepath: Path to file to stream
-        :raise FileError:
+        :raise FileError: If path is not valid
         """
         expandedpath = os.path.expanduser(filepath)
         try:
