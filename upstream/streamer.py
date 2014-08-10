@@ -167,7 +167,7 @@ class Streamer(object):
         except AssertionError:
             raise FileError("%s not a file or not found" % filepath)
 
-        with open(expandedpath) as f:
+        with open(expandedpath, 'rb') as f:
             while True:
                 chunk = f.read(self.chunk_size)
                 if not chunk:
