@@ -64,7 +64,8 @@ class Streamer(object):
             # Everthing checked out, return result
             # based on the format selected
             chunk = Chunk()
-            return chunk.load_json(r.text)
+            chunk.from_json(r.text)
+            return chunk
         else:
             raise ResponseError("Received status code %s %s"
                                 % (r.status_code, r.reason))
