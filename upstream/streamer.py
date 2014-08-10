@@ -160,27 +160,6 @@ class Streamer(object):
         # return requests.post(url, data=self._filestream(validpath))
         raise NotImplementedError
 
-    def _download_chunk(self, chunk, destination=""):
-        """ Download a chunk via GET from the specified node.
-        https://github.com/storj/web-core
-
-        :param chunk: Information about the chunk to download.
-        :param destination: Path where we store the file.
-        """
-
-        # Generate request URL
-        if chunk.decryptkey == "":
-            url = self.server + "/api/download/" + chunk.filehash
-        else:
-            url = self.server + "/api/download/" + chunk.get_uri()
-
-        # Retrieve chunk from the server and pass it the default file directory
-        # or override it to a particular place
-        if destination == "":
-            return urlretrieve(url, "files/" + chunk.filehash)
-        else:
-            return urlretrieve(url, destination)
-
     def _filestream(self, filepath):
         """ Streaming file generator
 
