@@ -18,5 +18,10 @@ setup(
     install_requires=[
         'requests',
         'requests-toolbelt'
-    ]
+    ],
+    entry_points={
+        'console_scripts': [
+            'upstream = upstream.clitool:main'
+        ]
+    },
 )
