@@ -59,6 +59,7 @@ class Chunk(object):
             }
         )
 
+    @property
     def has_hashes(self):
         return self.filehash and self.decryptkey
 
