@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+from upstream.exc import ChunkError
 
 
 class Chunk(object):
