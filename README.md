@@ -5,6 +5,73 @@ upstream
 
 Command line tool for uploading and downloading files from Metadisk and web-core.
 
+## CLI
+
+```
+$ upstream -h
+usage: upstream [-h] [--server SERVER] {upload,download} ...
+
+Command lin client forthe Storj web-core API
+
+positional arguments:
+  {upload,download}
+    upload           Upload a file from API
+    download         Download a file from API
+
+optional arguments:
+  -h, --help         show this help message and exit
+  --server SERVER
+```
+
+### Upload
+```
+usage: upstream upload [-h] file
+
+positional arguments:
+  file
+
+optional arguments:
+  -h, --help  show this help message and exit
+```
+
+```  
+$ upstream upload /path/to/file
+```
+
+```
+$ upstream upload LICENSE
+Connecting to http://node1.metadisk.org...
+Uploading file...Done.
+
+File hash: 382bdd282386969fad091d3902b1aa760d24a6f53775529a74fcd6f9d9f2b8b9
+Decrypt key: 5db82c117f2b0f75958b19d39c76dfcb56fd75fb145961cd45b04557a14f88bb
+URI: 382bdd282386969fad091d3902b1aa760d24a6f53775529a74fcd6f9d9f2b8b9?key=5db82c117f2b0f75958b19d39c76dfcb56fd75fb145961cd45b04557a14f88bb
+```
+
+### Download
+```
+usage: upstream download [-h] --uri URI --dest DEST [--chunk-size CHUNK_SIZE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --uri URI             URI of file to download
+  --dest DEST           Folder or file to download file
+  --chunk-size CHUNK_SIZE
+```
+
+```
+$ upstream download --uri <big long uri here> --dest /path/to/file 
+```
+
+```
+$ upstream download --dest ~/Downloads/mydownload --uri 382bdd282386969fad091d3902b1aa760d24a6f53775529a74fcd6f9d9f2b8b9?key=5db82c117f2b0f75958b19d39c76dfcb56fd75fb145961cd45b04557a14f88bb
+
+Creating chunk.
+Connecting to http://node1.metadisk.org...
+Downloading file...Done.
+
+Downloaded to ~/Downloads/mydownload.
+```
 ## Chunk Class
 The chunk class is for stores information about an encrypted chunk, including its hash and decryption key. This allows us to be able to covert between various formats needed in this tool and [Metadisk](https://github.com/storj/metadisk). 
 
