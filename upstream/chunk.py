@@ -4,8 +4,9 @@
 import json
 
 
-class Chunk:
-    def __init__(self, filehash = "", decryptkey = "", filename = "", filepath = ""):
+class Chunk(object):
+    def __init__(self, filehash=None, decryptkey=None, filename=None,
+                 filepath=None):
         """ Stores information about an encryted chunk. Allows for
         format conversions.
 
@@ -16,7 +17,6 @@ class Chunk:
         """
         self.filehash = filehash
         self.decryptkey = decryptkey
-
         self.filename = filename
         self.filepath = filepath
 
@@ -34,13 +34,27 @@ class Chunk:
 
     # Gets
     def get_uri(self):
+        if not self.has_hashes():
+            return
         return self.filehash + "?key=" + self.decryptkey
 
-    def get_tuple(self):
-        return (self.filehash, self.decryptkey)
+    def get_hashes(self):
+        if not self.has_hashes():
+            return
+        return self.filehash, self.decryptkey
 
     def get_json(self):
-        return json.dumps({"filehash": self.filehash, "key":  self.decryptkey})
+        if not self.has_hashes():
+            return
+        return json.dumps(
+            {
+                "key":  self.decryptkey,
+                "filehash": self.filehash,
+            }
+        )
+
+    def has_hashes(self):
+        return self.filehash and self.decryptkey
 
     # Extra metadata
     def set_filename(self, filename):
