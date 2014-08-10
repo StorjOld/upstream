@@ -7,7 +7,7 @@ import requests
 from requests_toolbelt import MultipartEncoder
 
 from upstream.chunk import Chunk
-from upstream.exc import FileError, ResponseError, ConnectError
+from upstream.exc import FileError, ResponseError, ConnectError, ChunkError
 
 try:
     from urllib import urlretrieve
