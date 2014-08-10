@@ -5,13 +5,17 @@
 # All Rights Reserved
 
 
+class ChunkError(Exception):
+    pass
+
+
+class ConnectError(Exception):
+    pass
+
+
 class FileError(Exception):
     pass
 
 
 class ResponseError(Exception):
-    pass
-
-
-class ConnectError(Exception):
     pass
