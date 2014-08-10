@@ -45,13 +45,13 @@ class Chunk(object):
         return self.filehash + "?key=" + self.decryptkey
 
     def get_hashes(self):
-        if not self.has_hashes():
-            return
+        if not self.has_hashes:
+            raise ChunkError("Missing filehash or decryptkey")
         return self.filehash, self.decryptkey
 
     def get_json(self):
-        if not self.has_hashes():
-            return
+        if not self.has_hashes:
+            raise ChunkError("Missing filehash or decryptkey")
         return json.dumps(
             {
                 "key":  self.decryptkey,
