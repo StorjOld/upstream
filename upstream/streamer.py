@@ -2,6 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import os
+from requests_toolbelt import MultipartEncoder
+
+from upstream.exc import FileError
+
+
 try:
     from urllib import urlretrieve
 except ImportError:
@@ -13,40 +18,22 @@ except ImportError:
 
 import requests
 
-import shredder
-import upstream
+from upstream.chunk import Chunk
 
 
-class Streamer:
-    def __init__(self, server, chunk_size = 32):
-        """
-        For uploading and downloading files from Metadisk.
+MEGABYTE = 1048576
 
-        Params:
-            server -- URL to the Metadisk server.
 
+class Streamer(object):
+    def __init__(self, server, chunksize=MEGABYTE):
+        """ For uploading and downloading files from Metadisk.
+
+        :param server: URL to the Metadisk server
+        :param chunk_size: In bytes of stream in bytes
         """
         self.server = server
+        self.chunk_size = chunksize
         self.check_connectivity()
-        self.chunk_size = chunk_size * 1048576
-
-    def get_server(self):
-        """Get the current server we are connecting to."""
-        return self.server
-
-    def set_server(self, server):
-        """Set the current server we are connecting to."""
-        self.server = server
-
-    def get_chunk_size(self, units = "MB"):
-        """Get the current chunk size."""
-        if units == "MB": return (self.chunk_size / 1048576) # B to MB
-        else: return self.chunk_size
-
-    def set_chunk_size(self, chunk_size, units = "MB"):
-        """Set the current chunk size."""
-        if units == "MB": self.chunk_size = chunk_size * 1048576 # MB to B
-        else: self.chunk_size = chunk_size
 
     def check_connectivity(self):
         """
@@ -59,59 +46,36 @@ class Streamer:
         except URLError:
             raise LookupError("Could not connect to server.")
 
-    def upload(self, path):
-        """Uploads a chunk via POST to the specified node."""
-        chunk_list = []
-        shredder_data = shredder.Shredder(path, self.chunk_size)
-
-        # megabytes to bytes to see if its smaller than a chunk
-        if os.path.getsize(path) < self.chunk_size:
-            # regular upload
-            chunk_list.append(self.upload_chunk(path))
-        else:
-            # split the file into chunk_size peices
-            peices = shredder_data.shred_chunks()
-
-            for peice in peices:
-                filepath = os.path.abspath(peice)
-                filename = os.path.split(peice)[1]
-
-                chunk = self.upload_chunk(peice)
-                os.remove(filepath) # remove tmp peice file
-
-                # filename, hash, decrypt key
-                chunk.set_filepath(filepath)
-                chunk.set_filename(filename)
-
-                chunk_list.append(chunk)
-
-        return chunk_list, shredder_data
-
     def download(self, chunk_list, shredder_data = None, destination=""):
         """Download a chunk via GET from the specified node."""
 
         if len(chunk_list) <= 0:
             pass
         elif len(chunk_list) == 1:
-            self.download_chunk(chunk_list[0], destination)
+            self._download_chunk(chunk_list[0], destination)
         else:
             for chunk in chunk_list:
-                self.download_chunk(chunk, "download/" + chunk.filename)
+                self._download_chunk(chunk, "download/" + chunk.filename)
             shredder_data.merge_chunks()
 
-    def upload_chunk(self, path):
-        """
-        Uploads a chunk via POST to the specified node.
-        https://github.com/storj/web-core
+    def upload(self, path):
+        """ Uploads a chunk via POST to the specified node
+        to the web-core API.  See API docs:
+        https://github.com/Storj/web-core#api-documentation
 
-        Params:
-            path -- The path to the file you want to upload.
-
+        :param path: Path to file as a string
         """
         # Open the file and upload it via POST
-        files = {'file': open(path, 'rb')}
-        url = self.server + "/api/upload" # web-core API
-        r = requests.post(url, files=files)
+        url = self.server + "/api/upload"  # web-core API
+        # This is a Transfer-Encoding: chunked filechunk generator
+        # that's disabled for fun, also cuz broken APO
+        # r = requests.post(url, data=self.filestream(path))
+        m = MultipartEncoder(
+            {
+                'file': ('testfile', open('one-meg.testfile', 'rb'))
+            }
+        )
+        r = requests.post(url, data=m, headers={'Content-Type': m.content_type})
 
         # Make sure that the API call is actually there
         if r.status_code == 404:
@@ -123,13 +87,14 @@ class Streamer:
         elif r.status_code == 201:
             # Everthing checked out, return result
             # based on the format selected
-            return upstream.chunk().load_json(r.text)
+            return Chunk().load_json(r.text)
         else:
-            raise LookupError("Unknown status code.")
+            raise LookupError("Received status code %s %s "
+                              % (r.status_code, r.reason))
 
-    def download_chunk(self, chunk, destination=""):
-        """
-        Download a chunk via GET from the specified node.
+
+    def _download_chunk(self, chunk, destination=""):
+        """ Download a chunk via GET from the specified node.
         https://github.com/storj/web-core
 
         Params:
@@ -150,3 +115,22 @@ class Streamer:
             return urlretrieve(url, "files/" + chunk.filehash)
         else:
             return urlretrieve(url, destination)
+
+    def filestream(self, filepath):
+        """ Streaming file generator
+
+        :param filepath: Path to file to stream
+        :raise FileError:
+        """
+        expandedpath = os.path.expanduser(filepath)
+        try:
+            os.path.isfile(expandedpath)
+        except AssertionError:
+            raise FileError("%s not a file or not found" % filepath)
+
+        with open(expandedpath) as f:
+            while True:
+                chunk = f.read(self.chunk_size)
+                if not chunk:
+                    break
+                yield chunk
