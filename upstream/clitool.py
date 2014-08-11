@@ -79,7 +79,7 @@ def parse_args():
     :return: argparse namespace
     """
     parser = argparse.ArgumentParser("upstream",
-                                     description="Command lin client for"
+                                     description="Command line client for "
                                                  "the Storj web-core API")
     parser.add_argument('--server', default='http://node1.metadisk.org')
     subparser = parser.add_subparsers(dest='action')
