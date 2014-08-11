@@ -11,7 +11,7 @@ Command line tool for uploading and downloading files from Metadisk and web-core
 $ upstream -h
 usage: upstream [-h] [--server SERVER] {upload,download} ...
 
-Command lin client forthe Storj web-core API
+Command line client for the Storj web-core API
 
 positional arguments:
   {upload,download}
@@ -92,7 +92,7 @@ print full_chunk.get_json()
 
 ### Full Spec
 
-TODO
+Documented in docstrings, Sphinx compatible.
 
 ## Streamer Class
 These are the transfer functions that are used to upload and download raw data to/from a node.
@@ -127,5 +127,5 @@ result = streamer.download(chunk, destination)
 
 ### Full Spec
 
-TODO
+Documented in docstrings, Sphinx compatible.
 
