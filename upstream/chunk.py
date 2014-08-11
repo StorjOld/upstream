@@ -44,10 +44,11 @@ class Chunk(object):
         self.filepath = filepath
 
     def from_uri(self, uri):
-        """
+        """ Loads object data with information from a URI string in the format
+        of ``<hash>?key=<key>``
 
         :param uri: URI as a string
-        :return:
+        :raise ChunkError: If not in format of ``<hash>?key=<key>``
         """
         try:
             self.filehash, self.decryptkey = str(uri).split("?key=")
@@ -62,18 +63,34 @@ class Chunk(object):
 
     @property
     def uri(self):
+        """ Property returning a URI-formatted string representation of
+        this chunk
+
+        :return: URI-formatted string representation of this chunk
+         :raise ChunkError: If filehash or decryptkey not set
+        """
         if not self.has_hashes:
-            raise ChunkError("Missing filehash or decryptkey")
+            raise ChunkError("Filehash or decryptkey not set")
         return self.filehash + "?key=" + self.decryptkey
 
     def get_hashes(self):
+        """ Returns a tuple of (filehash, decryptkey) as strings
+
+        :return: Tuple of (filehash, decryptkey) as strings
+        :raise ChunkError: If filehash or decryptkey not set
+        """
         if not self.has_hashes:
-            raise ChunkError("Missing filehash or decryptkey")
+            raise ChunkError("Filehash or decryptkey not set")
         return self.filehash, self.decryptkey
 
     def get_json(self):
+        """ Retturns a JSON representation of the filehash and decryptkey
+
+        :return: JSON string of ``{key: <key>, filehash: <filehash>}``
+        :raise ChunkError:
+        """
         if not self.has_hashes:
-            raise ChunkError("Missing filehash or decryptkey")
+            raise ChunkError("Filehash or decryptkey not set")
         return json.dumps(
             {
                 "key":  self.decryptkey,
@@ -83,10 +100,9 @@ class Chunk(object):
 
     @property
     def has_hashes(self):
+        """ Returns boolean indicating whether filehash and decryptkey are
+        both set
+
+        :return: Boolean
+        """
         return self.filehash and self.decryptkey
-
-    def set_filename(self, filename):
-        self.filename = filename
-
-    def set_filepath(self, filepath):
-        self.filepath = filepath

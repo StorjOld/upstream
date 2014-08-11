@@ -37,7 +37,6 @@ from upstream.exc import ConnectError, FileError, ChunkError
 
 class TestChunk(unittest.TestCase):
     def setUp(self):
-        # Some values
         self.cryptkey = ("2b77e64156f9f7eb16d74b98f70417e4"
                          "d665d977d0ef00e793d41767acf13e8c")
         self.filehash = ("5547a152337de9ff6a97f6f099bb024e"
@@ -74,6 +73,7 @@ class TestChunk(unittest.TestCase):
         del self.full_chunk
         del self.chunk1
         del self.chunk2
+        del self.json_dict
 
     def test_getters_empty_chunk(self):
         def _callable(meth):

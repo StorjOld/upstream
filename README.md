@@ -60,7 +60,7 @@ optional arguments:
 ```
 
 ```
-$ upstream download --uri <big long uri here> --dest /path/to/file 
+$ upstream download --uri <big long uri here> --dest /path/to/file
 ```
 
 ```
