@@ -106,7 +106,7 @@ chunk = streamer.upload(path)
 ### Upload Example
 File is uploaded via a POST request to the [Metadisk](http://metadisk.org) node via its [web-core](https://github.com/Storj/web-core#api-documentation) API. There is currently a node running [here](http://node1.storj.io). Currently our default chunk size is 32 MB.
 
-	up = Upstream("http://node1.storj.io")
+	up = Upstream("http://node1.metadisk.org")
 	chunk = up.upload("C:\\Users\\super3\\Code\\upstream\\test.txt")
 
 ### Download Usage
@@ -118,7 +118,7 @@ result = streamer.download(chunk, destination)
 ### Download Example
 
 ```	
-streamer = Streamer("http://node1.storj.io")
+streamer = Streamer("http://node1.metadisk.org")
 filehash = "5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac"
 decryptkey = "2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c"
 chunk = Chunk(filehash, decryptkey)
