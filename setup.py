@@ -36,7 +36,8 @@ setup(
     packages=['upstream'],
     install_requires=[
         'requests',
-        'requests-toolbelt'
+        'requests-toolbelt',
+        'argparse'
     ],
     entry_points={
         'console_scripts': [

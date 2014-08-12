@@ -23,8 +23,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import argparse
 import sys
+import argparse
 from upstream.chunk import Chunk
 
 from upstream.streamer import Streamer
@@ -37,7 +37,7 @@ def upload(args):
     """
     streamer = Streamer(args.server)
 
-    print "Connecting to %s..." % streamer.server
+    print("Connecting to %s..." % streamer.server)
     sys.stdout.write("Uploading file...")
     sys.stdout.flush()
 
@@ -45,9 +45,9 @@ def upload(args):
 
     sys.stdout.write('Done.\n\n')
     sys.stdout.flush()
-    print "File hash: %s" % chunk.filehash
-    print "Decrypt key: %s" % chunk.decryptkey
-    print "URI: %s" % chunk.uri
+    print("File hash: %s" % chunk.filehash)
+    print("Decrypt key: %s" % chunk.decryptkey)
+    print("URI: %s" % chunk.uri)
 
 
 def download(args):
@@ -55,21 +55,21 @@ def download(args):
 
     :param args: Argparse namespace
     """
-    print "Creating chunk."
+    print("Creating chunk.")
     chunk = Chunk()
     chunk.from_uri(args.uri)
 
     streamer = Streamer(args.server)
-    print "Connecting to %s..." % streamer.server
+    print("Connecting to %s..." % streamer.server)
     sys.stdout.write('Downloading file...')
     sys.stdout.flush()
     result = streamer.download(chunk, args.dest, args.chunk_size)
     sys.stdout.write('Done.\n\n')
 
     if result:
-        print "Downloaded to %s." % args.dest
+        print("Downloaded to %s." % (args.dest or chunk.filehash))
     else:
-        print "Something bad happened."
+        print("Something bad happened.")
         sys.exit(1)
 
 
@@ -90,7 +90,7 @@ def parse_args():
                                            help="Download a file from API")
     download_parser.add_argument('--uri', required=True,
                                  help="URI of file to download")
-    download_parser.add_argument('--dest', required=True,
+    download_parser.add_argument('--dest',
                                  help="Folder or file to download file")
     download_parser.add_argument('--chunk-size', type=int, default=1024)
 

@@ -109,7 +109,7 @@ class TestStreamer(unittest.TestCase):
     def setUp(self):
         self.stream = Streamer("http://node1.metadisk.org")
         self.orig_hash = None
-        self.uploadfile = "1k.testfile"
+        self.uploadfile = "tests/1k.testfile"
         self.downloadfile = "download.testfile"
 
     def tearDown(self):
@@ -161,7 +161,7 @@ class TestStreamer(unittest.TestCase):
             "1b1f463cef1807a127af668f3a4fdcc7977c647bf2f357d9fa125f13548b1d14"
         )
         result = self.stream.download(chunk, self.downloadfile)
-        self.assertIs(result, True)
+        self.assertTrue(result is True)
 
         orig_sha256 = ("bc839c0f9195028d375d652e72a5d08d"
                        "293eefd22868493185f084bc4aa61d00")

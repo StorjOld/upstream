@@ -24,21 +24,17 @@
 # SOFTWARE.
 
 import os
+try:
+    from urllib2 import urlopen, URLError
+except ImportError:
+    from urllib.request import urlopen
+    from urllib.error import URLError
 
 import requests
 from requests_toolbelt import MultipartEncoder
 
 from upstream.chunk import Chunk
 from upstream.exc import FileError, ResponseError, ConnectError, ChunkError
-
-try:
-    from urllib import urlretrieve
-except ImportError:
-    from urllib.request import urlretrieve
-try:
-    from urllib2 import urlopen, URLError
-except ImportError:
-    from urllib.retrieve import urlopen, URLError
 
 
 class Streamer(object):
@@ -122,7 +118,7 @@ class Streamer(object):
             except AssertionError:
                 raise FileError('%s is not a valid path' % path)
         else:
-            path = os.abspath(os.getcwd())
+            path = os.path.abspath(os.getcwd())
             fname = chunk.filename or chunk.filehash
         savepath = os.path.join(path, fname)
         url = "%s/api/download/%s" % (self.server, chunk.uri)
