@@ -37,7 +37,7 @@ def upload(args):
     """
     streamer = Streamer(args.server)
 
-    print "Connecting to %s..." % streamer.server
+    print("Connecting to %s..." % streamer.server)
     sys.stdout.write("Uploading file...")
     sys.stdout.flush()
 
@@ -45,9 +45,9 @@ def upload(args):
 
     sys.stdout.write('Done.\n\n')
     sys.stdout.flush()
-    print "File hash: %s" % chunk.filehash
-    print "Decrypt key: %s" % chunk.decryptkey
-    print "URI: %s" % chunk.uri
+    print("File hash: %s" % chunk.filehash)
+    print("Decrypt key: %s" % chunk.decryptkey)
+    print("URI: %s" % chunk.uri)
 
 
 def download(args):
@@ -55,21 +55,21 @@ def download(args):
 
     :param args: Argparse namespace
     """
-    print "Creating chunk."
+    print("Creating chunk.")
     chunk = Chunk()
     chunk.from_uri(args.uri)
 
     streamer = Streamer(args.server)
-    print "Connecting to %s..." % streamer.server
+    print("Connecting to %s..." % streamer.server)
     sys.stdout.write('Downloading file...')
     sys.stdout.flush()
     result = streamer.download(chunk, args.dest, args.chunk_size)
     sys.stdout.write('Done.\n\n')
 
     if result:
-        print "Downloaded to %s." % args.dest
+        print("Downloaded to %s." % (args.dest or chunk.filehash))
     else:
-        print "Something bad happened."
+        print("Something bad happened.")
         sys.exit(1)
 
 
