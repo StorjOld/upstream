@@ -90,7 +90,7 @@ def parse_args():
                                            help="Download a file from API")
     download_parser.add_argument('--uri', required=True,
                                  help="URI of file to download")
-    download_parser.add_argument('--dest', required=True,
+    download_parser.add_argument('--dest',
                                  help="Folder or file to download file")
     download_parser.add_argument('--chunk-size', type=int, default=1024)
 

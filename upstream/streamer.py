@@ -122,7 +122,7 @@ class Streamer(object):
             except AssertionError:
                 raise FileError('%s is not a valid path' % path)
         else:
-            path = os.abspath(os.getcwd())
+            path = os.path.abspath(os.getcwd())
             fname = chunk.filename or chunk.filehash
         savepath = os.path.join(path, fname)
         url = "%s/api/download/%s" % (self.server, chunk.uri)
