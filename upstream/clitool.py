@@ -23,8 +23,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import argparse
 import sys
+import argparse
 from upstream.chunk import Chunk
 
 from upstream.streamer import Streamer
