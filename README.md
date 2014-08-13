@@ -1,7 +1,7 @@
 upstream
 ========
 
-[![Build Status](https://drone.io/github.com/angstwad/upstream/status.png)](https://drone.io/github.com/angstwad/upstream/latest)
+[![Build Status](https://drone.io/github.com/Storj/upstream/status.png)](https://drone.io/github.com/Storj/upstream/latest)
 
 Command line tool for uploading and downloading files from Metadisk and web-core.
 
