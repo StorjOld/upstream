@@ -32,7 +32,7 @@ import mock
 
 from upstream.chunk import Chunk
 from upstream.streamer import Streamer
-from upstream.exc import ConnectError, FileError, ChunkError
+from upstream.exc import ConnectError, FileError, ChunkError, ResponseError
 
 
 class TestChunk(unittest.TestCase):
@@ -111,15 +111,23 @@ class TestStreamer(unittest.TestCase):
         self.orig_hash = None
         self.uploadfile = "tests/1k.testfile"
         self.downloadfile = "download.testfile"
+        self.chunk = Chunk(
+            "2032e4fd19d4ab49a74ead0984a5f672c26e60da6e992eaf51f05dc874e94bd7",
+            "1b1f463cef1807a127af668f3a4fdcc7977c647bf2f357d9fa125f13548b1d14"
+        )
 
     def tearDown(self):
         del self.stream
         del self.orig_hash
+        del self.uploadfile
         try:
             os.remove(self.downloadfile)
+            os.remove(self.chunk.filehash)
             # pass
         except:
             pass
+        del self.downloadfile
+        del self.chunk
 
     def test_initialization(self):
         self.assertEqual(self.stream.server, "http://node1.metadisk.org")
@@ -155,12 +163,63 @@ class TestStreamer(unittest.TestCase):
             self.stream.upload("not-a-real-file")
         self.assertRaises(FileError, _failing_upload)
 
+    def test_upload_patched_404(self):
+        self.stream._upload_form_encoded = mock.MagicMock()
+        self.stream._upload_form_encoded.return_value()
+        self.stream._upload_form_encoded.return_value.status_code = 404
+
+        def _fourohfour():
+            self.stream.upload(self.uploadfile)
+        with self.assertRaises(ResponseError) as ex:
+            _fourohfour()
+            self.assertEqual(ex.message, "API call not found.")
+
+    def test_upload_patched_402(self):
+        self.stream._upload_form_encoded = mock.MagicMock()
+        self.stream._upload_form_encoded.return_value()
+        self.stream._upload_form_encoded.return_value.status_code = 402
+
+        def _fourohtwo():
+            self.stream.upload(self.uploadfile)
+        with self.assertRaises(ResponseError) as ex:
+            _fourohtwo()
+
+    def test_upload_patched_500(self):
+        self.stream._upload_form_encoded = mock.MagicMock()
+        self.stream._upload_form_encoded.return_value()
+        self.stream._upload_form_encoded.return_value.status_code = 500
+
+        def _fivehundred():
+            self.stream.upload(self.uploadfile)
+        with self.assertRaises(ResponseError) as ex:
+            _fivehundred()
+            self.assertEqual(ex.message, "Server error.")
+
+    def test_upload_patched_501(self):
+        self.stream._upload_form_encoded = mock.MagicMock()
+        self.stream._upload_form_encoded.return_value()
+        self.stream._upload_form_encoded.return_value.status_code = 501
+        self.stream._upload_form_encoded.return_value.reason = "Not Implemented"
+
+        def _fiveohone():
+            self.stream.upload(self.uploadfile)
+        with self.assertRaises(ResponseError) as ex:
+            _fiveohone()
+            self.assertEqual(ex.message,
+                             "Received status code 501 Not Implemented")
+
+    def test_upload_check_path(self):
+        homedir = os.path.expanduser(self.uploadfile)
+        result = self.stream._upload_check_path(self.uploadfile)
+        self.assertEqual(homedir, result)
+
+        with self.assertRaises(FileError) as ex:
+            self.stream._upload_check_path('~/does-not-exist')
+            self.assertEqual(
+                ex.message, '~/does-not-exist not a file or not found')
+
     def test_download(self):
-        chunk = Chunk(
-            "2032e4fd19d4ab49a74ead0984a5f672c26e60da6e992eaf51f05dc874e94bd7",
-            "1b1f463cef1807a127af668f3a4fdcc7977c647bf2f357d9fa125f13548b1d14"
-        )
-        result = self.stream.download(chunk, self.downloadfile)
+        result = self.stream.download(self.chunk, self.downloadfile)
         self.assertTrue(result is True)
 
         orig_sha256 = ("bc839c0f9195028d375d652e72a5d08d"
@@ -170,3 +229,29 @@ class TestStreamer(unittest.TestCase):
             sha256.update(f.read())
         new_sha256 = sha256.hexdigest()
         self.assertEqual(orig_sha256, new_sha256)
+
+    def test_download_no_dest(self):
+        result = self.stream.download(self.chunk)
+        self.assertTrue(result is True)
+
+        orig_sha256 = ("bc839c0f9195028d375d652e72a5d08d"
+                       "293eefd22868493185f084bc4aa61d00")
+        sha256 = hashlib.sha256()
+        with open(self.chunk.filehash, 'rb') as f:
+            sha256.update(f.read())
+        new_sha256 = sha256.hexdigest()
+        self.assertEqual(orig_sha256, new_sha256)
+
+    def test_download_empty_chunk(self):
+        chunk = Chunk()
+        with self.assertRaises(ChunkError):
+            self.stream.download(chunk)
+
+    def test_download_bad_dest(self):
+        with self.assertRaises(FileError) as ex:
+            self.stream.download(self.chunk, self.uploadfile)
+            self.assertEqual(ex.message, "%s already exists" % self.uploadfile)
+
+        with self.assertRaises(FileError) as ex:
+            self.stream.download(self.chunk, '/path/does/not/exist.file')
+            self.assertEqual(ex.message, '/path/does/not is not a valid path')
