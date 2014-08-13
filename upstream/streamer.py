@@ -174,9 +174,9 @@ class Streamer(object):
         :return: requests.Response
         :raise NotImplementedError: Raises this error on any call.
         """
-        # validpath = self._check_path(filepath)
-        # return requests.post(url, data=self._filestream(validpath))
         raise NotImplementedError
+        validpath = self._check_path(filepath)
+        return requests.post(url, data=self._filestream(validpath))
 
     def _filestream(self, filepath):
         """ Streaming file generator
@@ -184,6 +184,7 @@ class Streamer(object):
         :param filepath: Path to file to stream
         :raise FileError: If path is not valid
         """
+        raise NotImplementedError
         expandedpath = os.path.expanduser(filepath)
         try:
             os.path.isfile(expandedpath)
