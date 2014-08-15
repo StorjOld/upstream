@@ -53,7 +53,7 @@ class ShardFile(object):
             self.callback = callback
 
     def __iter__(self):
-        return self._generate_shards()
+        return self._generate_slices()
 
     def __enter__(self):
         return self
@@ -62,9 +62,9 @@ class ShardFile(object):
         self._f_obj.close()
 
     def next(self):
-        if not hasattr(self, '_shardgen'):
-            self._shardgen = self._generate_shards()
-        result = self._shardgen.next()
+        if not hasattr(self, '_slicegen'):
+            self._slicegen = self._generate_slices()
+        result = self._slicegen.next()
         if not result:
             raise StopIteration
         return result
@@ -111,7 +111,7 @@ class ShardFile(object):
             del self._slicegen
         return self._f_obj.close()
 
-    def _generate_shards(self):
+    def _generate_slices(self):
         """ This method is called by the __iter__ method to provide an
         iter-compatible generator to stream slices of shards from disk.
         Also used by the next() method.
