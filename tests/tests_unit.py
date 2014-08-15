@@ -31,11 +31,10 @@ import types
 import unittest
 
 import mock
-import sys
-from file import ShardFile, SizeHelpers
 
 from upstream.chunk import Chunk
 from upstream.streamer import Streamer
+from upstream.file import ShardFile, SizeHelpers
 from upstream.exc import ConnectError, FileError, ChunkError, ResponseError
 
 
