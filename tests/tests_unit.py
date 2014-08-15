@@ -30,7 +30,10 @@ import random
 import types
 import unittest
 
-import mock
+try:
+    import mock
+except ImportError:
+    from unittest import mock
 
 from upstream.chunk import Chunk
 from upstream.streamer import Streamer
@@ -270,7 +273,7 @@ def callback(value):
 class TestShardFile(unittest.TestCase):
     def setUp(self):
         self.testfile = 'tests/one-meg.testfile'
-        self.shard = ShardFile(self.testfile)
+        self.shard = ShardFile(self.testfile, 'rb')
 
     def tearDown(self):
         del self.shard
