@@ -3,24 +3,6 @@
 import os
 
 
-class SizeHelpers(object):
-    @staticmethod
-    def bytes_to_kib(value):
-        return value / 1024
-
-    @staticmethod
-    def bytes_to_mib(value):
-        return value / 1024 / 1024
-
-    @staticmethod
-    def mib_to_bytes(value):
-        return value * 1024 * 1024
-
-    @staticmethod
-    def kib_to_bytes(value):
-        return value * 1024
-
-
 class ShardFile(object):
     """ A custom file-like object where files can be read as shards, i.e. a
     file can be sharded by multiple processes, each with their own start
@@ -165,5 +147,23 @@ class ShardFile(object):
         """ Calculates the total amount of data to be read.
         Sets the total_read_bytes attribute.
         """
-        loc = self.file.tell()
+        loc = self._f_obj.tell()
         self.total_read_bytes = self.max_seek - loc
+
+
+class SizeHelpers(object):
+    @staticmethod
+    def bytes_to_kib(value):
+        return value / 1024
+
+    @staticmethod
+    def bytes_to_mib(value):
+        return value / 1024 / 1024
+
+    @staticmethod
+    def mib_to_bytes(value):
+        return value * 1024 * 1024
+
+    @staticmethod
+    def kib_to_bytes(value):
+        return value * 1024
