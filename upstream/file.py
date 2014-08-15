@@ -122,7 +122,8 @@ class ShardFile(object):
             loc = self._f_obj.tell()
             if do_callback:
                 self.callback((loc, self.total_read_bytes))
-            elif loc == self.max_seek:
+
+            if loc == self.max_seek:
                 # We've reached the end of this shard: return.
                 return
             elif loc + self.read_size > self.max_seek:
