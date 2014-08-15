@@ -58,7 +58,7 @@ class ShardFile(object):
     def __enter__(self):
         return self
 
-    def __exit__(self):
+    def __exit__(self, type, value, tb):
         self._f_obj.close()
 
     def next(self):
@@ -80,7 +80,7 @@ class ShardFile(object):
         """
         if size:
             try:
-                assert size + self._f_obj.tell() > self.max_seek
+                assert size + self._f_obj.tell() < self.max_seek
             except AssertionError:
                 raise IOError('Read will exceed maximum seek '
                               'of %s bytes' % self.max_seek)
