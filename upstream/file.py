@@ -39,10 +39,10 @@ class ShardFile(object):
         a tuple of ints in the form of (current_position, reading_total).
         Both values are in bytes.
         """
-        self.file = open(filename, mode, buffering)
+        self._f_obj = open(filename, mode, buffering)
         self.shard_size = shard_size
         if start_pos > 0:
-            self.file.seek(start_pos)
+            self._f_obj.seek(start_pos)
         self.read_size = read_size
         self.filesize = os.path.getsize(filename)
 
@@ -59,7 +59,7 @@ class ShardFile(object):
         return self
 
     def __exit__(self):
-        self.file.close()
+        self._f_obj.close()
 
     def next(self):
         if not hasattr(self, '_shardgen'):
@@ -80,12 +80,12 @@ class ShardFile(object):
         """
         if size:
             try:
-                assert size + self.file.tell() > self.max_seek
+                assert size + self._f_obj.tell() > self.max_seek
             except AssertionError:
                 raise IOError('Read will exceed maximum seek '
                               'of %s bytes' % self.max_seek)
-            return self.file.read(size)
-        return self.file.read(self.max_seek)
+            return self._f_obj.read(size)
+        return self._f_obj.read(self.max_seek)
 
     def seek(self, *args, **kwargs):
         """ Calls directly to the file object's seek method.
@@ -93,14 +93,14 @@ class ShardFile(object):
         :param args: positional args
         :param kwargs: keword args
         """
-        self.file.seek(*args, **kwargs)
+        self._f_obj.seek(*args, **kwargs)
 
     def tell(self):
         """ Returns the current position of the cursor in the file object
 
         :return: Return value of the file object tell() method
         """
-        return self.file.tell()
+        return self._f_obj.tell()
 
     def close(self):
         """ Closes the file stream
@@ -108,8 +108,8 @@ class ShardFile(object):
         :return: The return value of close call to file object
         """
         if hasattr(self, '_shardgen'):
-            del self._shardgen
-        return self.file.close()
+            del self._slicegen
+        return self._f_obj.close()
 
     def _generate_shards(self):
         """ This method is called by the __iter__ method to provide an
@@ -119,7 +119,7 @@ class ShardFile(object):
         """
         do_callback = hasattr(self, 'callback')
         while True:
-            loc = self.file.tell()
+            loc = self._f_obj.tell()
             if do_callback:
                 self.callback((loc, self.total_read_bytes))
             elif loc == self.max_seek:
@@ -129,15 +129,15 @@ class ShardFile(object):
                 # The shardsize will exceed the max position, so
                 # only yield what's left
                 diff = self.max_seek - loc
-                yield self.file.read(diff)
+                yield self._f_obj.read(diff)
             else:
-                yield self.file.read(self.read_size)
+                yield self._f_obj.read(self.read_size)
 
     def _calc_max_seek(self):
         """ Calculates the maximum postion to seek.
         Sets the max_seek attribute.
         """
-        loc = self.file.tell()
+        loc = self._f_obj.tell()
         if loc + self.shard_size > self.filesize:
             self.max_seek = self.filesize
         else:
