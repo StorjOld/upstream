@@ -107,7 +107,7 @@ class ShardFile(object):
 
         :return: The return value of close call to file object
         """
-        if hasattr(self, '_shardgen'):
+        if hasattr(self, '_slicegen'):
             del self._slicegen
         return self._f_obj.close()
 
