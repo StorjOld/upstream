@@ -41,7 +41,7 @@ from upstream.file import ShardFile, SizeHelpers
 from upstream.exc import ConnectError, FileError, ShardError, ResponseError
 
 
-class TestChunk(unittest.TestCase):
+class TestShard(unittest.TestCase):
     def setUp(self):
         self.cryptkey = ("2b77e64156f9f7eb16d74b98f70417e4"
                          "d665d977d0ef00e793d41767acf13e8c")
@@ -53,15 +53,15 @@ class TestChunk(unittest.TestCase):
             "13e8c")
 
         # Create empty object
-        self.empty_chunk = Shard()
+        self.empty_shard = Shard()
         # Create half object
-        self.half_chunk = Shard(self.filehash)
+        self.half_shard = Shard(self.filehash)
         # Create full object
-        self.full_chunk = Shard(self.filehash, self.cryptkey)
+        self.full_shard = Shard(self.filehash, self.cryptkey)
 
         # Create new objects
-        self.chunk1 = Shard()
-        self.chunk2 = Shard()
+        self.shard1 = Shard()
+        self.shard2 = Shard()
 
         # Load content
         self.json_dict = {
@@ -70,45 +70,45 @@ class TestChunk(unittest.TestCase):
             "filehash": "5547a152337de9ff6a97f6f099bb024e"
                         "08af419cee613b18da76a33e581d49ac"
         }
-        self.chunk1.from_json(json.dumps(self.json_dict))
-        self.chunk2.from_uri(self.raw_uri)
+        self.shard1.from_json(json.dumps(self.json_dict))
+        self.shard2.from_uri(self.raw_uri)
 
     def tearDown(self):
-        del self.empty_chunk
-        del self.half_chunk
-        del self.full_chunk
-        del self.chunk1
-        del self.chunk2
+        del self.empty_shard
+        del self.half_shard
+        del self.full_shard
+        del self.shard1
+        del self.shard2
         del self.json_dict
 
-    def test_getters_empty_chunk(self):
+    def test_getters_empty_shard(self):
         def _callable(meth):
-            meth = getattr(self.empty_chunk, meth)
+            meth = getattr(self.empty_shard, meth)
             meth()
 
         for method in ['uri', 'get_hashes', 'get_json']:
             self.assertRaises(ShardError, _callable, method)
 
-    def test_getters_half_chunk(self):
+    def test_getters_half_shard(self):
         def _callable(meth):
-            meth = getattr(self.half_chunk, meth)
+            meth = getattr(self.half_shard, meth)
             meth()
 
         for method in ['uri', 'get_hashes', 'get_json']:
             self.assertRaises(ShardError, _callable, method)
 
-    def test_getters_full_chunk(self):
-        uri = self.full_chunk.uri
+    def test_getters_full_shard(self):
+        uri = self.full_shard.uri
         self.assertEqual(uri, self.raw_uri)
-        hash, key = self.full_chunk.get_hashes()
+        hash, key = self.full_shard.get_hashes()
         self.assertEqual(hash, self.filehash)
         self.assertEqual(key, self.cryptkey)
-        json_ = self.full_chunk.get_json()
+        json_ = self.full_shard.get_json()
         self.assertEqual(json_, json.dumps(self.json_dict))
 
-    def test_chunks(self):
+    def test_shards(self):
         # Fit everything into one test case
-        self.assertEqual(self.chunk1.get_hashes(), self.chunk2.get_hashes())
+        self.assertEqual(self.shard1.get_hashes(), self.shard2.get_hashes())
 
 
 class TestStreamer(unittest.TestCase):
@@ -117,7 +117,7 @@ class TestStreamer(unittest.TestCase):
         self.orig_hash = None
         self.uploadfile = "tests/1k.testfile"
         self.downloadfile = "download.testfile"
-        self.chunk = Shard(
+        self.shard = Shard(
             "2032e4fd19d4ab49a74ead0984a5f672c26e60da6e992eaf51f05dc874e94bd7",
             "1b1f463cef1807a127af668f3a4fdcc7977c647bf2f357d9fa125f13548b1d14"
         )
@@ -131,11 +131,11 @@ class TestStreamer(unittest.TestCase):
         except:
             pass
         try:
-            os.remove(self.chunk.filehash)
+            os.remove(self.shard.filehash)
         except:
             pass
         del self.downloadfile
-        del self.chunk
+        del self.shard
 
     def test_initialization(self):
         self.assertEqual(self.stream.server, "http://node1.metadisk.org")
@@ -151,18 +151,18 @@ class TestStreamer(unittest.TestCase):
         pass
 
     @mock.patch('requests.post')
-    def test_upload_chunked_encoded(self, post):
+    def test_upload_sharded_encoded(self, post):
         pass
 
     def test_upload(self):
         # Upload file and check file
-        self.chunk = self.stream.upload(self.uploadfile)
+        self.shard = self.stream.upload(self.uploadfile)
         self.assertEqual(
-            self.chunk.filehash,
+            self.shard.filehash,
             "2032e4fd19d4ab49a74ead0984a5f672"
             "c26e60da6e992eaf51f05dc874e94bd7")
         self.assertEqual(
-            self.chunk.decryptkey,
+            self.shard.decryptkey,
             "1b1f463cef1807a127af668f3a4fdcc7"
             "977c647bf2f357d9fa125f13548b1d14")
 
@@ -227,7 +227,7 @@ class TestStreamer(unittest.TestCase):
                 ex.message, '~/does-not-exist not a file or not found')
 
     def test_download(self):
-        result = self.stream.download(self.chunk, self.downloadfile)
+        result = self.stream.download(self.shard, self.downloadfile)
         self.assertTrue(result is True)
 
         orig_sha256 = ("bc839c0f9195028d375d652e72a5d08d"
@@ -239,29 +239,29 @@ class TestStreamer(unittest.TestCase):
         self.assertEqual(orig_sha256, new_sha256)
 
     def test_download_no_dest(self):
-        result = self.stream.download(self.chunk)
+        result = self.stream.download(self.shard)
         self.assertTrue(result is True)
 
         orig_sha256 = ("bc839c0f9195028d375d652e72a5d08d"
                        "293eefd22868493185f084bc4aa61d00")
         sha256 = hashlib.sha256()
-        with open(self.chunk.filehash, 'rb') as f:
+        with open(self.shard.filehash, 'rb') as f:
             sha256.update(f.read())
         new_sha256 = sha256.hexdigest()
         self.assertEqual(orig_sha256, new_sha256)
 
-    def test_download_empty_chunk(self):
-        chunk = Shard()
+    def test_download_empty_shard(self):
+        shard = Shard()
         with self.assertRaises(ShardError):
-            self.stream.download(chunk)
+            self.stream.download(shard)
 
     def test_download_bad_dest(self):
         with self.assertRaises(FileError) as ex:
-            self.stream.download(self.chunk, self.uploadfile)
+            self.stream.download(self.shard, self.uploadfile)
             self.assertEqual(ex.message, "%s already exists" % self.uploadfile)
 
         with self.assertRaises(FileError) as ex:
-            self.stream.download(self.chunk, '/path/does/not/exist.file')
+            self.stream.download(self.shard, '/path/does/not/exist.file')
             self.assertEqual(ex.message, '/path/does/not is not a valid path')
 
 
