@@ -46,7 +46,7 @@ def parse_shard_size(size):
     if size.isdigit():
         return int(size)
     last = size[-1].lower()
-    number = str[:-1]
+    number = size[:-1]
     choices = ['b', 'k', 'm']
     if last not in choices:
         return
