@@ -180,7 +180,7 @@ def parse_args():
                                                  "the Storj web-core API")
     parser.add_argument('--server', default='http://node1.metadisk.org')
     parser.add_argument('-v', dest='verbose',
-                        action='store_true', help='Verbose output.')
+                        action='store_true', help='Verbose output')
     parser.add_argument('--version', action='version',
                         version="%(prog)s " + upstream.__version__,
                         help='Diplay version.')
@@ -194,12 +194,18 @@ def parse_args():
                                     "to upload, max: 250m, default: 250m. "
                                     "Ex. 25m - file will be broken into 25 MB "
                                     "chunks and uploaded chunk by chunk")
-    upload_parser.add_argument('file')
+    upload_parser.add_argument('file', help="Path to file to upload")
 
     download_parser = subparser.add_parser('download',
                                            help="Download a file from API")
-    download_parser.add_argument('--uri', required=True,
-                                 help="URI of file to download")
+    download_parser.add_argument(
+        '--uri',
+        required=True,
+        nargs='+',
+        help="URI, or URIs, of file to download. Accepts multiple values, "
+             "space separated. If multiple URIs are specified, the URIs are "
+             "joined to create a single file"
+    )
     download_parser.add_argument('--dest',
                                  help="Folder or file to download file")
     download_parser.add_argument('--chunk-size', type=int, default=1024)
