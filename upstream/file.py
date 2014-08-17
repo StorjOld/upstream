@@ -64,7 +64,7 @@ class ShardFile(object):
     def next(self):
         if not hasattr(self, '_slicegen'):
             self._slicegen = self._generate_slices()
-        result = self._slicegen.next()
+        result = next(self._slicegen)
         if not result:
             raise StopIteration
         return result
