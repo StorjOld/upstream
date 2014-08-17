@@ -49,10 +49,8 @@ class Streamer(object):
         self.check_connectivity()
 
     def check_connectivity(self):
-        """
-        Check to see if we even get a connection to the server.
+        """ Check to see if we even get a connection to the server.
         https://stackoverflow.com/questions/3764291/checking-network-connection
-
         """
         try:
             urlopen(self.server, timeout=1)
