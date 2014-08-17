@@ -41,8 +41,7 @@ class ShardFile(object):
         """
         self._f_obj = open(filename, mode, buffering)
         self.shard_size = shard_size
-        if start_pos > 0:
-            self._f_obj.seek(start_pos)
+        self._f_obj.seek(start_pos)
         self.read_size = read_size
         self.filesize = os.path.getsize(filename)
 
