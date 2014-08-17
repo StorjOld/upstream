@@ -61,6 +61,9 @@ class ShardFile(object):
     def __exit__(self, type, value, tb):
         self._f_obj.close()
 
+    def __len__(self):
+        return self.total_read_bytes
+
     def next(self):
         if not hasattr(self, '_slicegen'):
             self._slicegen = self._generate_slices()
