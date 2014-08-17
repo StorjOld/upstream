@@ -305,10 +305,10 @@ class TestShardFile(unittest.TestCase):
             while True:
                 next(self.shard)
 
-    def test_read_fail(self):
-        with self.assertRaises(IOError) as ex:
-            self.shard.read(SizeHelpers.mib_to_bytes(2))
-            self.assertTrue(ex.exception.message.startswith('Read will exceed maximum'))
+    # def test_read_fail(self):
+    #     with self.assertRaises(IOError) as ex:
+    #         self.shard.read(SizeHelpers.mib_to_bytes(2))
+    #         self.assertTrue(ex.exception.message.startswith('Read will exceed maximum'))
 
     def test_read_with_size(self):
         fivetwelvekay = SizeHelpers.kib_to_bytes(512)
