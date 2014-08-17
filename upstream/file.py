@@ -160,8 +160,10 @@ class ShardFile(object):
         do_callback = hasattr(self, 'callback')
         loc = self._f_obj.tell()
         if do_callback:
-            if loc < self.total_read_bytes:
-                self.callback((loc, self.total_read_bytes))
+            if loc < self.max_seek:
+                self.callback(
+                    (abs((self.max_seek - loc) - self.total_read_bytes), self.total_read_bytes)
+                )
 
 
 class SizeHelpers(object):
