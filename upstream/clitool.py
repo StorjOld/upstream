@@ -48,7 +48,15 @@ class ProgressCallback(object):
 
     def callback(self, values):
         if not self.bar:
-            self.bar = progressbar.ProgressBar(maxval=values[1])
+            self.bar = progressbar.ProgressBar(
+                maxval=values[1],
+                widgets=[
+                    'Uploading Shard: ', progressbar.Percentage(),
+                    ' ', progressbar.Bar(),
+                    ' ', progressbar.ETA(),
+                    ' ', progressbar.FileTransferSpeed()
+                ],
+            )
         if not self.started:
             self.bar.start()
             self.bar.update(values[0])
