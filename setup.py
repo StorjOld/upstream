@@ -24,20 +24,23 @@
 # SOFTWARE.
 
 from setuptools import setup
+import upstream
 
 setup(
     name='upstream',
-    version='0.1.0',
+    version=upstream.__version__,
     url='https://github.com/Storj/upstream',
     license='MIT License',
     author='Storj Labs',
     author_email='info@storj.io',
-    description='Command line tool for uploading and downloading files from Metadisk',
+    description='Command line tool for uploading and downloading files from '
+                'Metadisk',
     packages=['upstream'],
     install_requires=[
         'requests',
         'requests-toolbelt',
-        'argparse'
+        'argparse',
+        'progressbar',
     ],
     entry_points={
         'console_scripts': [
