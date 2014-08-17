@@ -62,7 +62,7 @@ class ShardFile(object):
         self._f_obj.close()
 
     def __len__(self):
-        return self.total_read_bytes
+        return abs(self.tell() - self.total_read_bytes)
 
     def next(self):
         if not hasattr(self, '_slicegen'):
