@@ -26,11 +26,30 @@ import os
 
 import sys
 import argparse
+import progressbar
 
-from exc import FileError
-from upstream.file import SizeHelpers
+import upstream
 from upstream.chunk import Chunk
+from upstream.exc import FileError
+from upstream.file import SizeHelpers
 from upstream.streamer import Streamer
+
+
+def printcallback(value):
+    print(value)
+
+
+class ProgressCallback(object):
+    def __init__(self):
+        self.bar = None
+        self.started = False
+
+    def callback(self, values):
+        if not self.bar:
+            self.bar = progressbar.ProgressBar(maxval=values[1])
+        if not self.started:
+            self.bar.start()
+            self.bar.update(values[0])
 
 
 def parse_shard_size(size):
