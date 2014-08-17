@@ -121,6 +121,7 @@ def upload(args):
 
     streamer = Streamer(args.server)
     shards = calculate_shards(args, shard_size, filepath)
+    shard_info = []
     for idx, shard in enumerate(shards):
         i = idx + 1
         start = shard[0]
@@ -133,7 +134,12 @@ def upload(args):
         )
         callback.bar.finish()
         sys.stdout.flush()
-        print("\nShard %d - URI: %s\n" % (i, chunk.uri))
+        if args.verbose:
+            print("\nShard %d - URI: %s\n" % (i, chunk.uri))
+        shard_info.append(chunk.uri)
+    print()
+    print("Download this file by using the following command: ")
+    print("upstream download --uri", " ".join(shard_info), "--dest <filename>")
 
 
 def download(args):
