@@ -147,19 +147,24 @@ def download(args):
 
     :param args: Argparse namespace
     """
-    print("Creating chunk.")
-    chunk = Chunk()
-    chunk.from_uri(args.uri)
+    chunks = []
+    for uri in args.uri:
+        if args.verbose:
+            print("Creating chunk.")
+        chunk = Chunk()
+        chunk.from_uri(uri)
+        chunks.append(chunk)
 
     streamer = Streamer(args.server)
-    print("Connecting to %s..." % streamer.server)
-    sys.stdout.write('Downloading file...')
-    sys.stdout.flush()
-    result = streamer.download(chunk, args.dest, args.chunk_size)
-    sys.stdout.write('Done.\n\n')
+    if args.verbose:
+        print("Connecting to %s..." % streamer.server)
+
+    result = streamer.download(
+        chunks, dest=args.dest, chunksize=8096, verbose=args.verbose
+    )
 
     if result:
-        print("Downloaded to %s." % (args.dest or chunk.filehash))
+        print("\nDownloaded to %s." % (args.dest or chunk.filehash))
     else:
         print("Something bad happened.")
         sys.exit(1)
