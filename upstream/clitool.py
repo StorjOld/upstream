@@ -134,9 +134,19 @@ def parse_args():
                                                  "the Storj web-core API")
     parser.add_argument('--server', default='http://node1.metadisk.org')
     subparser = parser.add_subparsers(dest='action')
+
+
     upload_parser = subparser.add_parser('upload',
                                          help="Upload a file from API")
+    upload_parser.add_argument('--shard-size',
+                               default=SizeHelpers.mib_to_bytes(250),
+                               help="Size of shards to break file into and "
+                                    "to upload, max: 250m, default: 250m. "
+                                    "Ex. 25m - file will be broken into 25 MB "
+                                    "chunks and uploaded chunk by chunk")
     upload_parser.add_argument('file')
+
+
     download_parser = subparser.add_parser('download',
                                            help="Download a file from API")
     download_parser.add_argument('--uri', required=True,
