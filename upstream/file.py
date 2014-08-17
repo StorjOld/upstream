@@ -162,7 +162,10 @@ class ShardFile(object):
         if do_callback:
             if loc < self.max_seek:
                 self.callback(
-                    (abs((self.max_seek - loc) - self.total_read_bytes), self.total_read_bytes)
+                    (
+                        abs((self.max_seek - loc) - self.total_read_bytes),
+                        self.total_read_bytes
+                    )
                 )
 
 
