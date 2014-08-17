@@ -24,6 +24,7 @@
 # SOFTWARE.
 
 import os
+import uuid
 from requests_toolbelt import MultipartEncoder
 from file import ShardFile, SizeHelpers
 
@@ -96,10 +97,10 @@ class Streamer(object):
             raise ResponseError("Received status code %s %s"
                                 % (r.status_code, r.reason))
 
-    def download(self, chunk, dest=None, chunksize=1024):
+    def download(self, shards, dest=None, chunksize=1024, verbose=False):
         """ Downloads a file from the web-core API.
 
-        :param chunk: upstream.chunk.Chunk instance
+        :param shards: upstream.chunk.Chunk instance
         :param dest: Path to place file as string, otherwise save to CWD using
         filehash as filename
         :param chunksize: Size of chunks to write to disk in bytes
@@ -107,9 +108,10 @@ class Streamer(object):
         :raise FileError: If dest is not a valid filepath or if already exists
         """
         try:
-            assert chunk.filehash
+            for shard in shards:
+                assert shard.filehash
         except AssertionError:
-            raise ChunkError()
+            raise ChunkError("Some chunks missing filehash.")
 
         if dest:
             try:
@@ -127,15 +129,26 @@ class Streamer(object):
                 raise FileError('%s is not a valid path' % path)
         else:
             path = os.path.abspath(os.getcwd())
-            fname = chunk.filename or chunk.filehash
+            fname = uuid.uuid4().hex
         savepath = os.path.join(path, fname)
-        url = "%s/api/download/%s" % (self.server, chunk.uri)
-        resp = requests.get(url, stream=True)
-        if resp.status_code == 200:
-            with open(savepath, 'wb') as f:
-                for chunk in resp.iter_content(chunksize):
-                    f.write(chunk)
-            return True
+        if verbose:
+            print("There are %d shards to download." % len(shards))
+
+        for i, shard in enumerate(shards):
+            url = "%s/api/download/%s" % (self.server, shard.uri)
+
+            if verbose:
+                print("Downloading %s" % url)
+            else:
+                print("Downloading file %d..." % (i + 1))
+            resp = requests.get(url, stream=True)
+            if resp.status_code == 200:
+                with open(savepath, 'ab') as f:
+                    if verbose:
+                        print("Writing chunk.")
+                    for _bytes in resp.iter_content(chunksize):
+                        f.write(_bytes)
+        return True
 
     @staticmethod
     def check_path(filepath):
