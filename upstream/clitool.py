@@ -28,7 +28,7 @@ import sys
 import argparse
 
 from exc import FileError
-from file import SizeHelpers
+from upstream.file import SizeHelpers
 from upstream.chunk import Chunk
 from upstream.streamer import Streamer
 
