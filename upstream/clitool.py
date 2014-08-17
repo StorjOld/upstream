@@ -112,7 +112,6 @@ def upload(args):
     streamer = Streamer(args.server)
     shards = calculate_shards(args, shard_size, filepath)
     for idx, shard in enumerate(shards):
-        print shard
         i = idx + 1
         start = shard[0]
         callback = ProgressCallback()
