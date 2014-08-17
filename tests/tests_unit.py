@@ -227,8 +227,8 @@ class TestStreamer(unittest.TestCase):
                 ex.message, '~/does-not-exist not a file or not found')
 
     def test_download(self):
-        result = self.stream.download(self.shard, self.downloadfile)
-        self.assertTrue(result is True)
+        result = self.stream.download([self.shard], self.downloadfile)
+        self.assertTrue(result)
 
         orig_sha256 = ("bc839c0f9195028d375d652e72a5d08d"
                        "293eefd22868493185f084bc4aa61d00")
@@ -239,13 +239,13 @@ class TestStreamer(unittest.TestCase):
         self.assertEqual(orig_sha256, new_sha256)
 
     def test_download_no_dest(self):
-        result = self.stream.download(self.shard)
-        self.assertTrue(result is True)
+        result = self.stream.download([self.shard])
+        self.assertTrue(result)
 
         orig_sha256 = ("bc839c0f9195028d375d652e72a5d08d"
                        "293eefd22868493185f084bc4aa61d00")
         sha256 = hashlib.sha256()
-        with open(self.shard.filehash, 'rb') as f:
+        with open(result, 'rb') as f:
             sha256.update(f.read())
         new_sha256 = sha256.hexdigest()
         self.assertEqual(orig_sha256, new_sha256)
@@ -253,15 +253,15 @@ class TestStreamer(unittest.TestCase):
     def test_download_empty_shard(self):
         shard = Shard()
         with self.assertRaises(ShardError):
-            self.stream.download(shard)
+            self.stream.download([shard])
 
     def test_download_bad_dest(self):
         with self.assertRaises(FileError) as ex:
-            self.stream.download(self.shard, self.uploadfile)
+            self.stream.download([self.shard], self.uploadfile)
             self.assertEqual(ex.message, "%s already exists" % self.uploadfile)
 
         with self.assertRaises(FileError) as ex:
-            self.stream.download(self.shard, '/path/does/not/exist.file')
+            self.stream.download([self.shard], '/path/does/not/exist.file')
             self.assertEqual(ex.message, '/path/does/not is not a valid path')
 
 

@@ -25,8 +25,8 @@
 
 import os
 import uuid
+
 from requests_toolbelt import MultipartEncoder
-from file import ShardFile, SizeHelpers
 
 try:
     from urllib2 import urlopen, URLError
@@ -37,6 +37,7 @@ except ImportError:
 import requests
 
 from upstream.shard import Shard
+from upstream.file import ShardFile, SizeHelpers
 from upstream.exc import FileError, ResponseError, ConnectError, ShardError
 
 
@@ -148,7 +149,7 @@ class Streamer(object):
                         print("Writing shard.")
                     for _bytes in resp.iter_content(shardsize):
                         f.write(_bytes)
-        return True
+        return fname
 
     @staticmethod
     def check_path(filepath):
