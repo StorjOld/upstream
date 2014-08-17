@@ -33,6 +33,45 @@ from upstream.chunk import Chunk
 from upstream.streamer import Streamer
 
 
+def parse_shard_size(size):
+    """ Parse a string, expected to be in the format of, for example:
+    250m, 512k, 1024b.  A string without a trailing letter is assumed to be
+    bytes. Accepts the following: m as mebibytes, k as kibibytes, b as bytes,
+
+
+    :param size:
+    :return:
+    """
+    size = str(size)
+    if size.isdigit():
+        return int(size)
+    last = size[-1].lower()
+    number = str[:-1]
+    choices = ['b', 'k', 'm']
+    if not last in choices:
+        return
+    if last == 'b':
+        return int(number)
+    elif last == 'k':
+        return SizeHelpers.kib_to_bytes(int(number))
+    elif last == 'm':
+        return SizeHelpers.mib_to_bytes(int(number))
+
+
+def calculate_shards(shard_size, file):
+    file_size = os.path.getsize(file)
+    num_shards = int(file_size / shard_size) + 1
+    shards = []
+    start = 0
+    end = shard_size
+    for shard in range(num_shards):
+        tup = (start, end)
+        shards.append(tup)
+        start = end
+        end += shard_size
+    return shards
+
+
 def upload(args):
     """ Controls actions for uploading
 
