@@ -24,7 +24,7 @@
 # SOFTWARE.
 
 
-class ChunkError(Exception):
+class ShardError(Exception):
     pass
 
 

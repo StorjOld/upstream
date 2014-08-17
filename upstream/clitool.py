@@ -31,7 +31,7 @@ import argparse
 import progressbar
 
 import upstream
-from upstream.chunk import Chunk
+from upstream.shard import Shard
 from upstream.exc import FileError
 from upstream.file import SizeHelpers
 from upstream.streamer import Streamer
@@ -126,7 +126,7 @@ def upload(args):
         i = idx + 1
         start = shard[0]
         callback = ProgressCallback()
-        chunk = streamer.upload(
+        shard = streamer.upload(
             args.file,
             start_pos=start,
             shard_size=shard_size,
@@ -135,8 +135,8 @@ def upload(args):
         callback.bar.finish()
         sys.stdout.flush()
         if args.verbose:
-            print("\nShard %d - URI: %s\n" % (i, chunk.uri))
-        shard_info.append(chunk.uri)
+            print("\nShard %d - URI: %s\n" % (i, shard.uri))
+        shard_info.append(shard.uri)
     print()
     print("Download this file by using the following command: ")
     print("upstream download --uri", " ".join(shard_info), "--dest <filename>")
@@ -147,24 +147,24 @@ def download(args):
 
     :param args: Argparse namespace
     """
-    chunks = []
+    shards = []
     for uri in args.uri:
         if args.verbose:
-            print("Creating chunk.")
-        chunk = Chunk()
-        chunk.from_uri(uri)
-        chunks.append(chunk)
+            print("Creating shard.")
+        shard = Shard()
+        shard.from_uri(uri)
+        shards.append(shard)
 
     streamer = Streamer(args.server)
     if args.verbose:
         print("Connecting to %s..." % streamer.server)
 
     result = streamer.download(
-        chunks, dest=args.dest, chunksize=8096, verbose=args.verbose
+        shards, dest=args.dest, shardsize=8096, verbose=args.verbose
     )
 
     if result:
-        print("\nDownloaded to %s." % (args.dest or chunk.filehash))
+        print("\nDownloaded to %s." % (args.dest or shard.filehash))
     else:
         print("Something bad happened.")
         sys.exit(1)
@@ -193,7 +193,7 @@ def parse_args():
                                help="Size of shards to break file into and "
                                     "to upload, max: 250m, default: 250m. "
                                     "Ex. 25m - file will be broken into 25 MB "
-                                    "chunks and uploaded chunk by chunk")
+                                    "shards and uploaded shard by shard")
     upload_parser.add_argument('file', help="Path to file to upload")
 
     download_parser = subparser.add_parser('download',
@@ -208,7 +208,7 @@ def parse_args():
     )
     download_parser.add_argument('--dest',
                                  help="Folder or file to download file")
-    download_parser.add_argument('--chunk-size', type=int, default=1024)
+    download_parser.add_argument('--shard-size', type=int, default=1024)
 
     return parser.parse_args()
 

@@ -35,10 +35,10 @@ try:
 except ImportError:
     from unittest import mock
 
-from upstream.chunk import Chunk
+from upstream.shard import Shard
 from upstream.streamer import Streamer
 from upstream.file import ShardFile, SizeHelpers
-from upstream.exc import ConnectError, FileError, ChunkError, ResponseError
+from upstream.exc import ConnectError, FileError, ShardError, ResponseError
 
 
 class TestChunk(unittest.TestCase):
@@ -53,15 +53,15 @@ class TestChunk(unittest.TestCase):
             "13e8c")
 
         # Create empty object
-        self.empty_chunk = Chunk()
+        self.empty_chunk = Shard()
         # Create half object
-        self.half_chunk = Chunk(self.filehash)
+        self.half_chunk = Shard(self.filehash)
         # Create full object
-        self.full_chunk = Chunk(self.filehash, self.cryptkey)
+        self.full_chunk = Shard(self.filehash, self.cryptkey)
 
         # Create new objects
-        self.chunk1 = Chunk()
-        self.chunk2 = Chunk()
+        self.chunk1 = Shard()
+        self.chunk2 = Shard()
 
         # Load content
         self.json_dict = {
@@ -87,7 +87,7 @@ class TestChunk(unittest.TestCase):
             meth()
 
         for method in ['uri', 'get_hashes', 'get_json']:
-            self.assertRaises(ChunkError, _callable, method)
+            self.assertRaises(ShardError, _callable, method)
 
     def test_getters_half_chunk(self):
         def _callable(meth):
@@ -95,7 +95,7 @@ class TestChunk(unittest.TestCase):
             meth()
 
         for method in ['uri', 'get_hashes', 'get_json']:
-            self.assertRaises(ChunkError, _callable, method)
+            self.assertRaises(ShardError, _callable, method)
 
     def test_getters_full_chunk(self):
         uri = self.full_chunk.uri
@@ -117,7 +117,7 @@ class TestStreamer(unittest.TestCase):
         self.orig_hash = None
         self.uploadfile = "tests/1k.testfile"
         self.downloadfile = "download.testfile"
-        self.chunk = Chunk(
+        self.chunk = Shard(
             "2032e4fd19d4ab49a74ead0984a5f672c26e60da6e992eaf51f05dc874e94bd7",
             "1b1f463cef1807a127af668f3a4fdcc7977c647bf2f357d9fa125f13548b1d14"
         )
@@ -251,8 +251,8 @@ class TestStreamer(unittest.TestCase):
         self.assertEqual(orig_sha256, new_sha256)
 
     def test_download_empty_chunk(self):
-        chunk = Chunk()
-        with self.assertRaises(ChunkError):
+        chunk = Shard()
+        with self.assertRaises(ShardError):
             self.stream.download(chunk)
 
     def test_download_bad_dest(self):

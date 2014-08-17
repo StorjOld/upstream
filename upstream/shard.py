@@ -24,13 +24,13 @@
 # SOFTWARE.
 
 import json
-from upstream.exc import ChunkError
+from upstream.exc import ShardError
 
 
-class Chunk(object):
+class Shard(object):
     def __init__(self, filehash=None, decryptkey=None, filename=None,
                  filepath=None):
-        """ Stores information about an encryted chunk. Allows for
+        """ Stores information about an encryted shard. Allows for
         format conversions.
 
         :param filehash: The hash for a file.
@@ -48,12 +48,12 @@ class Chunk(object):
         of ``<hash>?key=<key>``
 
         :param uri: URI as a string
-        :raise ChunkError: If not in format of ``<hash>?key=<key>``
+        :raise ShardError: If not in format of ``<hash>?key=<key>``
         """
         try:
             self.filehash, self.decryptkey = str(uri).split("?key=")
         except:
-            raise ChunkError("%s not format of <hash>?key=<key>")
+            raise ShardError("%s not format of <hash>?key=<key>")
 
     def from_json(self, json_str):
         self.json_str = json_str
@@ -64,33 +64,33 @@ class Chunk(object):
     @property
     def uri(self):
         """ Property returning a URI-formatted string representation of
-        this chunk
+        this shard
 
-        :return: URI-formatted string representation of this chunk
-         :raise ChunkError: If filehash or decryptkey not set
+        :return: URI-formatted string representation of this shard
+         :raise ShardError: If filehash or decryptkey not set
         """
         if not self.has_hashes:
-            raise ChunkError("Filehash or decryptkey not set")
+            raise ShardError("Filehash or decryptkey not set")
         return self.filehash + "?key=" + self.decryptkey
 
     def get_hashes(self):
         """ Returns a tuple of (filehash, decryptkey) as strings
 
         :return: Tuple of (filehash, decryptkey) as strings
-        :raise ChunkError: If filehash or decryptkey not set
+        :raise ShardError: If filehash or decryptkey not set
         """
         if not self.has_hashes:
-            raise ChunkError("Filehash or decryptkey not set")
+            raise ShardError("Filehash or decryptkey not set")
         return self.filehash, self.decryptkey
 
     def get_json(self):
         """ Retturns a JSON representation of the filehash and decryptkey
 
         :return: JSON string of ``{key: <key>, filehash: <filehash>}``
-        :raise ChunkError:
+        :raise ShardError:
         """
         if not self.has_hashes:
-            raise ChunkError("Filehash or decryptkey not set")
+            raise ShardError("Filehash or decryptkey not set")
         return json.dumps(
             {
                 "key":  self.decryptkey,

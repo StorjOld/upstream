@@ -36,8 +36,8 @@ except ImportError:
 
 import requests
 
-from upstream.chunk import Chunk
-from upstream.exc import FileError, ResponseError, ConnectError, ChunkError
+from upstream.shard import Shard
+from upstream.exc import FileError, ResponseError, ConnectError, ShardError
 
 
 class Streamer(object):
@@ -61,12 +61,12 @@ class Streamer(object):
 
     def upload(self, filepath, shard_size=0, start_pos=0, read_size=1024,
                callback=None):
-        """ Uploads a chunk via POST to the specified node
+        """ Uploads a shard via POST to the specified node
         to the web-core API.  See API docs:
         https://github.com/Storj/web-core#api-documentation
 
         :param filepath: Path to file as a string
-        :return: upstream.chunk.Chunk
+        :return: upstream.shard.Shard
         :raise LookupError: IF
         """
         # Open the file and upload it via POST
@@ -90,20 +90,20 @@ class Streamer(object):
         elif r.status_code == 201:
             # Everthing checked out, return result
             # based on the format selected
-            chunk = Chunk()
-            chunk.from_json(r.text)
-            return chunk
+            shard = Shard()
+            shard.from_json(r.text)
+            return shard
         else:
             raise ResponseError("Received status code %s %s"
                                 % (r.status_code, r.reason))
 
-    def download(self, shards, dest=None, chunksize=1024, verbose=False):
+    def download(self, shards, dest=None, shardsize=1024, verbose=False):
         """ Downloads a file from the web-core API.
 
-        :param shards: upstream.chunk.Chunk instance
+        :param shards: upstream.shard.Shard instance
         :param dest: Path to place file as string, otherwise save to CWD using
         filehash as filename
-        :param chunksize: Size of chunks to write to disk in bytes
+        :param shardsize: Size of shards to write to disk in bytes
         :return: True if success, else None
         :raise FileError: If dest is not a valid filepath or if already exists
         """
@@ -111,7 +111,7 @@ class Streamer(object):
             for shard in shards:
                 assert shard.filehash
         except AssertionError:
-            raise ChunkError("Some chunks missing filehash.")
+            raise ShardError("Some shards missing filehash.")
 
         if dest:
             try:
@@ -145,8 +145,8 @@ class Streamer(object):
             if resp.status_code == 200:
                 with open(savepath, 'ab') as f:
                     if verbose:
-                        print("Writing chunk.")
-                    for _bytes in resp.iter_content(chunksize):
+                        print("Writing shard.")
+                    for _bytes in resp.iter_content(shardsize):
                         f.write(_bytes)
         return True
 
@@ -191,8 +191,8 @@ class Streamer(object):
         }
         return requests.post(url, data=m, headers=headers)
 
-    def _upload_chunked_encoded(self, url, filepath):
-        """ Uploads a file using chunked transfer encoding.
+    def _upload_sharded_encoded(self, url, filepath):
+        """ Uploads a file using sharded transfer encoding.
         web-core does not currently accept this type of uploads because
         of issues in upstream projects, primariy flask and werkzeug.  Leaving
         it here for posterity as it might be useful in the future.
@@ -223,7 +223,7 @@ class Streamer(object):
 
         with open(expandedpath, 'rb') as f:
             while True:
-                chunk = f.read(self.chunk_size)
-                if not chunk:
+                shard = f.read(self.shard_size)
+                if not shard:
                     break
-                yield chunk
+                yield shard
