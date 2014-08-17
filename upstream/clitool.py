@@ -48,7 +48,7 @@ def parse_shard_size(size):
     last = size[-1].lower()
     number = str[:-1]
     choices = ['b', 'k', 'm']
-    if not last in choices:
+    if last not in choices:
         return
     if last == 'b':
         return int(number)
@@ -85,7 +85,7 @@ def upload(args):
         sys.stderr.write('%s\n' % e.message)
         sys.exit(1)
 
-    shards = calculate_shards(shard_size, filepath)
+    shards = calculate_shards(shard_size, filepath)  # NOQA
     streamer = Streamer(args.server)
 
     print("Connecting to %s..." % streamer.server)
@@ -135,7 +135,6 @@ def parse_args():
     parser.add_argument('--server', default='http://node1.metadisk.org')
     subparser = parser.add_subparsers(dest='action')
 
-
     upload_parser = subparser.add_parser('upload',
                                          help="Upload a file from API")
     upload_parser.add_argument('--shard-size',
@@ -145,7 +144,6 @@ def parse_args():
                                     "Ex. 25m - file will be broken into 25 MB "
                                     "chunks and uploaded chunk by chunk")
     upload_parser.add_argument('file')
-
 
     download_parser = subparser.add_parser('download',
                                            help="Download a file from API")
