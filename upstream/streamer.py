@@ -129,7 +129,8 @@ class Streamer(object):
                     f.write(chunk)
             return True
 
-    def _upload_check_path(self, filepath):
+    @staticmethod
+    def check_path(filepath):
         """ Expands and validates a given path to a file and returns it
 
         :param filepath: Path to file as string

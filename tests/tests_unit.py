@@ -218,11 +218,11 @@ class TestStreamer(unittest.TestCase):
 
     def test_upload_check_path(self):
         homedir = os.path.expanduser(self.uploadfile)
-        result = self.stream._upload_check_path(self.uploadfile)
+        result = self.stream.check_path(self.uploadfile)
         self.assertEqual(homedir, result)
 
         with self.assertRaises(FileError) as ex:
-            self.stream._upload_check_path('~/does-not-exist')
+            self.stream.check_path('~/does-not-exist')
             self.assertEqual(
                 ex.message, '~/does-not-exist not a file or not found')
 
