@@ -89,7 +89,10 @@ def calculate_shards(args, shard_size, filepath):
         start = end
         end += shard_size
     if args.verbose:
+        for i, s in enumerate(shards):
+            print("Shard %d - Start: %d; End: %s" % (i, s[0], s[1]))
         print("File will be uploaded in %d piece(s)." % len(shards))
+
     return shards
 
 
