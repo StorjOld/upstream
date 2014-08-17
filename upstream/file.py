@@ -69,6 +69,9 @@ class ShardFile(object):
             raise StopIteration
         return result
 
+    # Py3 Support
+    __next__ = next
+
     def read(self, size=None):
         """ Reads the value of size from the file object and returns.  Will
         not read more than the maximum size of the shard, stored in the
