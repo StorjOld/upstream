@@ -88,6 +88,8 @@ def calculate_shards(args, shard_size, filepath):
         shards.append(tup)
         start = end
         end += shard_size
+    if args.verbose:
+        print("File will be uploaded in %d piece(s)." % len(shards))
     return shards
 
 
