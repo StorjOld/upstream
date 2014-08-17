@@ -24,6 +24,7 @@
 # SOFTWARE.
 
 import os
+from requests_toolbelt import MultipartEncoder
 from file import ShardFile, SizeHelpers
 
 try:
@@ -169,8 +170,13 @@ class Streamer(object):
             read_size=read_size,
             callback=callback
         )
-        files = {'file': shard}
-        return requests.post(url, files=files)
+        m = MultipartEncoder({
+            'file': ('file', shard)
+        })
+        headers = {
+            'Content-Type': m.content_type
+        }
+        return requests.post(url, data=m, headers=headers)
 
     def _upload_chunked_encoded(self, url, filepath):
         """ Uploads a file using chunked transfer encoding.
