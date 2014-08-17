@@ -79,7 +79,7 @@ def parse_shard_size(size):
 
 def calculate_shards(args, shard_size, filepath):
     file_size = os.path.getsize(filepath)
-    num_shards = int(file_size / shard_size) + 1
+    num_shards = int(file_size / shard_size)
     shards = []
     start = 0
     end = shard_size
