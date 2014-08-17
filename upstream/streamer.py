@@ -24,6 +24,8 @@
 # SOFTWARE.
 
 import os
+from file import ShardFile, SizeHelpers
+
 try:
     from urllib2 import urlopen, URLError
 except ImportError:
@@ -31,7 +33,6 @@ except ImportError:
     from urllib.error import URLError
 
 import requests
-from requests_toolbelt import MultipartEncoder
 
 from upstream.chunk import Chunk
 from upstream.exc import FileError, ResponseError, ConnectError, ChunkError
@@ -58,7 +59,8 @@ class Streamer(object):
         except URLError:
             raise ConnectError("Could not connect to server.")
 
-    def upload(self, filepath):
+    def upload(self, filepath, shard_size=0, start_pos=0, read_size=1024,
+               callback=None):
         """ Uploads a chunk via POST to the specified node
         to the web-core API.  See API docs:
         https://github.com/Storj/web-core#api-documentation
@@ -69,7 +71,14 @@ class Streamer(object):
         """
         # Open the file and upload it via POST
         url = self.server + "/api/upload"  # web-core API
-        r = self._upload_form_encoded(url, filepath)
+        r = self._upload_form_encoded(
+            url,
+            filepath,
+            shard_size=shard_size,
+            start_pos=start_pos,
+            read_size=read_size,
+            callback=callback
+        )
 
         # Make sure that the API call is actually there
         if r.status_code == 404:
@@ -144,23 +153,26 @@ class Streamer(object):
             raise FileError("%s not a file or not found" % filepath)
         return expandedpath
 
-    def _upload_form_encoded(self, url, filepath):
+    def _upload_form_encoded(self, url, filepath, shard_size, start_pos,
+                             read_size=1024, callback=None):
         """ Streams file from disk and uploads it.
 
         :param url: API endpoint as URL to upload to
         :param filepath: Path to file as string
         :return: requests.Response
         """
-        validpath = self._upload_check_path(filepath)
-        m = MultipartEncoder(
-            {
-                'file': ('testfile', open(validpath, 'rb'))
-            }
+        validpath = self.check_path(filepath)
+        if shard_size == 0:
+            shard_size = SizeHelpers.mib_to_bytes(250)
+        shard = ShardFile(
+            validpath, 'rb',
+            shard_size=shard_size,
+            start_pos=start_pos,
+            read_size=read_size,
+            callback=callback
         )
-        headers = {
-            'Content-Type': m.content_type
-        }
-        return requests.post(url, data=m, headers=headers)
+        files = {'file': shard}
+        return requests.post(url, files=files)
 
     def _upload_chunked_encoded(self, url, filepath):
         """ Uploads a file using chunked transfer encoding.
