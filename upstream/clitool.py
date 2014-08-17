@@ -121,11 +121,9 @@ def upload(args):
             shard_size=shard_size,
             callback=callback.callback
         )
-        try:
-            callback.bar.finish()
-        except:
-            pass
-        print("\nShard %d - URI: %s" % (i, chunk.uri))
+        callback.bar.finish()
+        sys.stdout.flush()
+        print("\nShard %d - URI: %s\n" % (i, chunk.uri))
 
 
 def download(args):
