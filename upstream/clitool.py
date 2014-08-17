@@ -77,8 +77,8 @@ def parse_shard_size(size):
         return SizeHelpers.mib_to_bytes(int(number))
 
 
-def calculate_shards(shard_size, file):
-    file_size = os.path.getsize(file)
+def calculate_shards(args, shard_size, filepath):
+    file_size = os.path.getsize(filepath)
     num_shards = int(file_size / shard_size) + 1
     shards = []
     start = 0
