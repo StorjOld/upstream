@@ -77,6 +77,15 @@ def upload(args):
 
     :param args: Parsed args namespace
     """
+    shard_size = parse_shard_size(args.shard_size)
+
+    try:
+        filepath = Streamer.check_path(args.file)
+    except FileError as e:
+        sys.stderr.write('%s\n' % e.message)
+        sys.exit(1)
+
+    shards = calculate_shards(shard_size, filepath)
     streamer = Streamer(args.server)
 
     print("Connecting to %s..." % streamer.server)
