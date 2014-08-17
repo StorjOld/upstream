@@ -84,13 +84,16 @@ class ShardFile(object):
         :return: Bytes ready from file object stream
         :raise IOError: If exceeding the max_seek attribute
         """
+        self._callback()
         if size:
-            try:
-                assert size + self._f_obj.tell() < self.max_seek
-            except AssertionError:
-                raise IOError('Read will exceed maximum seek '
-                              'of %s bytes' % self.max_seek)
-            return self._f_obj.read(size)
+            loc = self.tell()
+            if loc == self.max_seek:
+                return ''
+            elif size + loc > self.max_seek:
+                size = self.max_seek - loc
+                return self._f_obj.read(size)
+            else:
+                return self._f_obj.read(size)
         return self._f_obj.read(self.max_seek)
 
     def seek(self, *args, **kwargs):
@@ -123,12 +126,9 @@ class ShardFile(object):
         Also used by the next() method.
 
         """
-        do_callback = hasattr(self, 'callback')
         while True:
-            loc = self._f_obj.tell()
-            if do_callback:
-                self.callback((loc, self.total_read_bytes))
-
+            self._callback()
+            loc = self.tell()
             if loc == self.max_seek:
                 # We've reached the end of this shard: return.
                 return
@@ -156,6 +156,13 @@ class ShardFile(object):
         """
         loc = self._f_obj.tell()
         self.total_read_bytes = self.max_seek - loc
+
+    def _callback(self):
+        do_callback = hasattr(self, 'callback')
+        loc = self._f_obj.tell()
+        if do_callback:
+            if loc < self.total_read_bytes:
+                self.callback((loc, self.total_read_bytes))
 
 
 class SizeHelpers(object):
