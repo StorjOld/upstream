@@ -106,20 +106,24 @@ def upload(args):
         sys.stderr.write('%s\n' % e.message)
         sys.exit(1)
 
-    shards = calculate_shards(shard_size, filepath)  # NOQA
     streamer = Streamer(args.server)
-
-    print("Connecting to %s..." % streamer.server)
-    sys.stdout.write("Uploading file...")
-    sys.stdout.flush()
-
-    chunk = streamer.upload(args.file)
-
-    sys.stdout.write('Done.\n\n')
-    sys.stdout.flush()
-    print("File hash: %s" % chunk.filehash)
-    print("Decrypt key: %s" % chunk.decryptkey)
-    print("URI: %s" % chunk.uri)
+    shards = calculate_shards(args, shard_size, filepath)
+    for idx, shard in enumerate(shards):
+        print shard
+        i = idx + 1
+        start = shard[0]
+        callback = ProgressCallback()
+        chunk = streamer.upload(
+            args.file,
+            start_pos=start,
+            shard_size=shard_size,
+            callback=callback.callback
+        )
+        try:
+            callback.bar.finish()
+        except:
+            pass
+        print("\nShard %d - URI: %s" % (i, chunk.uri))
 
 
 def download(args):
