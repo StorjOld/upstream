@@ -101,7 +101,7 @@ class Streamer(object):
     def download(self, shards, dest=None, shardsize=1024, verbose=False):
         """ Downloads a file from the web-core API.
 
-        :param shards: upstream.shard.Shard instance
+        :param shards: An iterable of upstream.shard.Shard instances
         :param dest: Path to place file as string, otherwise save to CWD using
         filehash as filename
         :param shardsize: Size of shards to write to disk in bytes
@@ -206,11 +206,12 @@ class Streamer(object):
         :raise NotImplementedError: Raises this error on any call.
         """
         raise NotImplementedError
-        validpath = self._check_path(filepath)
+        validpath = self.check_path(filepath)
         return requests.post(url, data=self._filestream(validpath))
 
     def _filestream(self, filepath):
-        """ Streaming file generator
+        """ Streaming file generator.  Useful when chunked transfer encoding
+        is supported in web-core.
 
         :param filepath: Path to file to stream
         :raise FileError: If path is not valid

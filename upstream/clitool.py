@@ -178,7 +178,8 @@ def parse_args():
     parser = argparse.ArgumentParser("Upstream",
                                      description="Command line client for "
                                                  "the Storj web-core API")
-    parser.add_argument('--server', default='http://node1.metadisk.org')
+    parser.add_argument('--server', default='http://node1.metadisk.org',
+                        help='Metadisk node to connect to')
     parser.add_argument('-v', dest='verbose',
                         action='store_true', help='Verbose output')
     parser.add_argument('--version', action='version',
@@ -190,10 +191,10 @@ def parse_args():
                                          help="Upload a file from API")
     upload_parser.add_argument('--shard-size',
                                default=SizeHelpers.mib_to_bytes(250),
-                               help="Size of shards to break file into and "
-                                    "to upload, max: 250m, default: 250m. "
-                                    "Ex. 25m - file will be broken into 25 MB "
-                                    "shards and uploaded shard by shard")
+                               help='Size of shards to break file into and '
+                                    'to upload, max: 250m, default: 250m. '
+                                    'Ex. 25m - file will be broken into 25 MB '
+                                    'shards and uploaded shard by shard')
     upload_parser.add_argument('file', help="Path to file to upload")
 
     download_parser = subparser.add_parser('download',
@@ -202,9 +203,9 @@ def parse_args():
         '--uri',
         required=True,
         nargs='+',
-        help="URI, or URIs, of file to download. Accepts multiple values, "
-             "space separated. If multiple URIs are specified, the URIs are "
-             "joined to create a single file"
+        help='URI, or URIs, of file to download. Accepts multiple values, '
+             'space separated. If multiple URIs are specified, the URIs are '
+             'joined to create a single file'
     )
     download_parser.add_argument('--dest',
                                  help="Folder or file to download file")
