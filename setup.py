@@ -37,14 +37,19 @@ setup(
                 'Metadisk',
     packages=['upstream'],
     install_requires=[
-        'requests',
         'requests-toolbelt',
         'argparse',
-        'progressbar',
+        'progressbar==2.4dev',
+        'requests',
+    ],
+    dependency_links=[
+        "https://github.com/angstwad/python-progressbar/tarball/master#egg=progressbar-2.4dev"
     ],
     entry_points={
         'console_scripts': [
             'upstream = upstream.clitool:main'
         ]
     },
+
+
 )
