@@ -28,6 +28,7 @@ import os
 
 import sys
 import argparse
+import math
 import progressbar
 
 import upstream
@@ -89,11 +90,11 @@ def parse_shard_size(size):
 
 def calculate_shards(args, shard_size, filepath):
     file_size = os.path.getsize(filepath)
-    num_shards = int(file_size / shard_size)
+    num_shards = math.ceil(file_size / float(shard_size))
     shards = []
     start = 0
     end = shard_size
-    for shard in range(num_shards):
+    for shard in range(int(num_shards)):
         tup = (start, end)
         shards.append(tup)
         start = end
