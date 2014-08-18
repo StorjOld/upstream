@@ -39,11 +39,8 @@ setup(
     install_requires=[
         'requests-toolbelt',
         'argparse',
-        'progressbar==2.4dev',
+        'py3-progressbar==2.4dev',
         'requests',
-    ],
-    dependency_links=[
-        "https://github.com/angstwad/python-progressbar/tarball/master#egg=progressbar-2.4dev"
     ],
     entry_points={
         'console_scripts': [
