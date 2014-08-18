@@ -27,6 +27,7 @@ import os
 import uuid
 
 from requests_toolbelt import MultipartEncoder
+import sys
 
 try:
     from urllib2 import urlopen, URLError
@@ -142,12 +143,19 @@ class Streamer(object):
                 print("Downloading %s" % url)
             else:
                 print("Downloading file %d..." % (i + 1))
-            resp = requests.get(url, stream=True)
-            if resp.status_code == 200:
+            sys.stdout.flush()
+            r = requests.get(url, stream=True)
+            try:
+                r.raise_for_status()
+            except:
+                # We'll continue to raise until futher notice -- no use
+                # writing a file that's broken/incomplete
+                raise
+            if r.status_code == 200:
                 with open(savepath, 'ab') as f:
                     if verbose:
                         print("Writing shard.")
-                    for _bytes in resp.iter_content(shardsize):
+                    for _bytes in r.iter_content(shardsize):
                         f.write(_bytes)
         return fname
 
