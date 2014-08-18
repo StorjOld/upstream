@@ -185,7 +185,7 @@ def parse_args():
                         action='store_true', help='Verbose output')
     parser.add_argument('--version', action='version',
                         version="%(prog)s " + upstream.__version__,
-                        help='Diplay version.')
+                        help='Display version.')
     subparser = parser.add_subparsers(dest='action')
 
     upload_parser = subparser.add_parser('upload',
