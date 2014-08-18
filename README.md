@@ -8,8 +8,8 @@ Command line tool for uploading and downloading files from Metadisk and web-core
 ## CLI
 
 ```
-$ upstream -h
-usage: upstream [-h] [--server SERVER] {upload,download} ...
+$ upstream --help
+usage: Upstream [-h] [--server SERVER] [-v] [--version] {upload,download} ...
 
 Command line client for the Storj web-core API
 
@@ -20,18 +20,25 @@ positional arguments:
 
 optional arguments:
   -h, --help         show this help message and exit
-  --server SERVER
+  --server SERVER    Metadisk node to connect to
+  -v                 Verbose output
+  --version          Diplay version.
 ```
 
 ### Upload
 ```
-usage: upstream upload [-h] file
+$ upstream upload --help
+usage: Upstream upload [-h] [--shard-size SHARD_SIZE] file
 
 positional arguments:
-  file
+  file                  Path to file to upload
 
 optional arguments:
-  -h, --help  show this help message and exit
+  -h, --help            show this help message and exit
+  --shard-size SHARD_SIZE
+                        Size of shards to break file into and to upload, max:
+                        250m, default: 250m. Ex. 25m - file will be broken
+                        into 25 MB shards and uploaded shard by shard
 ```
 
 ```  
@@ -39,48 +46,60 @@ $ upstream upload /path/to/file
 ```
 
 ```
-$ upstream upload LICENSE
-Connecting to http://node1.metadisk.org...
-Uploading file...Done.
+ $ upstream upload --shard-size 3m 10megs.bin
+Uploading Shard: 100% |##############################| Time: 00:00:06 523.98 K/s
+Uploading Shard: 100% |##############################| Time: 00:00:08 369.53 K/s
+Uploading Shard: 100% |##############################| Time: 00:00:06 472.13 K/s
+Uploading Shard: 100% |##############################| Time: 00:00:01 535.82 K/s
 
-File hash: 382bdd282386969fad091d3902b1aa760d24a6f53775529a74fcd6f9d9f2b8b9
-Decrypt key: 5db82c117f2b0f75958b19d39c76dfcb56fd75fb145961cd45b04557a14f88bb
-URI: 382bdd282386969fad091d3902b1aa760d24a6f53775529a74fcd6f9d9f2b8b9?key=5db82c117f2b0f75958b19d39c76dfcb56fd75fb145961cd45b04557a14f88bb
+Download this file by using the following command:
+upstream download --uri 05034bfffb47a5d0e810b9666a9832cb97f78525ad7979dc496a45f67a72ce1c?key=ae01ecea6e3fa80e720fac87440f53117c0850bf47cfe9fd39511f97c03909e9 4caea2ba18c169da600a33fd9a8b87e9ccc155d1a73cb0fa113685df174f0b94?key=ff8781fcf1395ab71ffb87441471534ec0ec4622ca16a1569923712c8b859869 d01741eabd6ee29980a45ac32e42ff9dfc4d60b65446bf6b86b5efabbd8d9684?key=d87aa3ba0ebe82c66894f9cd44625f259953636dd1eb9c2d803578b954e144cd 520ee9d093943fb266908a3df006fae1ec6115551d835fdf7fdb3dc93b188f0e?key=752cc57f077c49667c3e092ece451c53a4f6790e9d3fe6f448b079acf91ed030 --dest <filename>
 ```
 
 ### Download
 ```
-usage: upstream download [-h] --uri URI --dest DEST [--chunk-size CHUNK_SIZE]
+$ upstream download --help
+usage: Upstream download [-h] --uri URI [URI ...] [--dest DEST]
+                         [--shard-size SHARD_SIZE]
 
 optional arguments:
   -h, --help            show this help message and exit
-  --uri URI             URI of file to download
+  --uri URI [URI ...]   URI, or URIs, of file to download. Accepts multiple
+                        values, space separated. If multiple URIs are
+                        specified, the URIs are joined to create a single file
   --dest DEST           Folder or file to download file
-  --chunk-size CHUNK_SIZE
+  --shard-size SHARD_SIZE
 ```
 
 ```
 $ upstream download --uri <big long uri here> --dest /path/to/file
+
+$ upstream download --uri 05034bfffb47a5d0e810b9666a9832cb97f78525ad7979dc496a45f67a72ce1c?key=ae01ecea6e3fa80e720fac87440f53117c0850bf47cfe9fd39511f97c03909e9 4caea2ba18c169da600a33fd9a8b87e9ccc155d1a73cb0fa113685df174f0b94?key=ff8781fcf1395ab71ffb87441471534ec0ec4622ca16a1569923712c8b859869 d01741eabd6ee29980a45ac32e42ff9dfc4d60b65446bf6b86b5efabbd8d9684?key=d87aa3ba0ebe82c66894f9cd44625f259953636dd1eb9c2d803578b954e144cd 520ee9d093943fb266908a3df006fae1ec6115551d835fdf7fdb3dc93b188f0e?key=752cc57f077c49667c3e092ece451c53a4f6790e9d3fe6f448b079acf91ed030 --dest my-downloaded-file-10megs.bin
+Downloading file 1...
+Downloading file 2...
+Downloading file 3...
+Downloading file 4...
+
+Downloaded to my-downloaded-file-10megs.bin.
 ```
 
-```
-$ upstream download --dest ~/Downloads/mydownload --uri 382bdd282386969fad091d3902b1aa760d24a6f53775529a74fcd6f9d9f2b8b9?key=5db82c117f2b0f75958b19d39c76dfcb56fd75fb145961cd45b04557a14f88bb
+**And it works...**
 
-Creating chunk.
-Connecting to http://node1.metadisk.org...
-Downloading file...Done.
-
-Downloaded to ~/Downloads/mydownload.
 ```
-## Chunk Class
-The chunk class is for stores information about an encrypted chunk, including its hash and decryption key. This allows us to be able to covert between various formats needed in this tool and [Metadisk](https://github.com/storj/metadisk). 
+$ shasum 10megs.bin my-downloaded-file-10megs.bin
+1ed47c6d1061f18bfae227713bedd10956744fd4  10megs.bin
+1ed47c6d1061f18bfae227713bedd10956744fd4  my-downloaded-file-10megs.bin
+
+```
+## Shard Class
+The shard class is for stores information about an encrypted shard, including its hash and decryption key. This allows us to be able to covert between various formats needed in this tool and [Metadisk](https://github.com/storj/metadisk). 
 
 ### Example Usage 
 ```
 cryptkey = "2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c"
 filehash = "5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac"
-full_chunk = Chunk(filehash, cryptkey)
-print full_chunk.get_json()
+full_shard = shard(filehash, cryptkey)
+print full_shard.get_json()
 ```
 
 ```
@@ -100,19 +119,19 @@ These are the transfer functions that are used to upload and download raw data t
 ### Upload Usage
 ```
 streamer = Streamer('http://node1.metadisk.org')
-chunk = streamer.upload(path)
+shard = streamer.upload(path)
 ```
 
 ### Upload Example
-File is uploaded via a POST request to the [Metadisk](http://metadisk.org) node via its [web-core](https://github.com/Storj/web-core#api-documentation) API. There is currently a node running [here](http://node1.storj.io). Currently our default chunk size is 32 MB.
+File is uploaded via a POST request to the [Metadisk](http://metadisk.org) node via its [web-core](https://github.com/Storj/web-core#api-documentation) API. There is currently a node running [here](http://node1.storj.io). Currently our default shard size is 32 MB.
 
 	up = Upstream("http://node1.metadisk.org")
-	chunk = up.upload("C:\\Users\\super3\\Code\\upstream\\test.txt")
+	shard = up.upload("C:\\Users\\super3\\Code\\upstream\\test.txt")
 
 ### Download Usage
 
 ```
-result = streamer.download(chunk, destination)
+result = streamer.download(shard, destination)
 ```
 
 ### Download Example
@@ -121,8 +140,8 @@ result = streamer.download(chunk, destination)
 streamer = Streamer("http://node1.metadisk.org")
 filehash = "5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac"
 decryptkey = "2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c"
-chunk = Chunk(filehash, decryptkey)
-result = streamer.download(chunk, destination)
+shard = shard(filehash, decryptkey)
+result = streamer.download(shard, destination)
 ```
 
 ### Full Spec
