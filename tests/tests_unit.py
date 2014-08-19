@@ -233,6 +233,59 @@ class TestStreamer(unittest.TestCase):
         self.assertEquals(r.status_code, 200)
         self.assertEqual(len(r.content), 1024)
 
+    def test_download_exception(self):
+        self.shard.filehash = self.shard.filehash[:-5]
+        with self.assertRaises(ResponseError) as ex:
+            r = self.stream.download(self.shard)
+        self.assertEqual(ex.exception.response.status_code, 404)
+
+    def test_download_empty_shard(self):
+        shard = Shard()
+        with self.assertRaises(ShardError) as e:
+            self.stream.download(shard)
+        self.assertEqual(e.exception.message, "Shard missing filehash.")
+
+
+class TestClitool(unittest.TestCase):
+    def setUp(self):
+        self.stream = Streamer("http://node1.metadisk.org")
+        self.orig_hash = None
+        self.uploadfile = "tests/1k.testfile"
+        self.downloadfile = "download.testfile"
+        self.shard = Shard(
+            "2032e4fd19d4ab49a74ead0984a5f672c26e60da6e992eaf51f05dc874e94bd7",
+            "1b1f463cef1807a127af668f3a4fdcc7977c647bf2f357d9fa125f13548b1d14"
+        )
+        self.args = mock.MagicMock()
+        self.args.verbose = False
+        self.args.server = 'http://node1.metadisk.org'
+        self.args.uri = [self.shard.uri]
+        self.args.file = self.uploadfile
+        self.args.dest = self.downloadfile
+        self.args.shard_size = SizeHelpers.mib_to_bytes(250)
+
+    def tearDown(self):
+        del self.stream
+        del self.orig_hash
+        del self.uploadfile
+        try:
+            os.remove(self.downloadfile)
+        except:
+            pass
+        try:
+            os.remove(self.shard.filehash)
+        except:
+            pass
+        del self.downloadfile
+        del self.shard
+        del self.args
+
+    def test_upload_download(self):
+        self.args.action = 'upload'
+        clitool.upload(self.args)
+        self.args.action = 'download'
+        clitool.download(self.args)
+
         orig_sha256 = ("bc839c0f9195028d375d652e72a5d08d"
                        "293eefd22868493185f084bc4aa61d00")
         sha256 = hashlib.sha256()
@@ -241,28 +294,86 @@ class TestStreamer(unittest.TestCase):
         new_sha256 = sha256.hexdigest()
         self.assertEqual(orig_sha256, new_sha256)
 
-    def test_download_no_dest(self):
-        result = self.stream.download([self.shard])
-        self.assertTrue(result)
+    def test_upload_download_with_verbosity(self):
+        self.args.verbose = True
+        self.args.action = 'upload'
+        clitool.upload(self.args)
+        self.args.action = 'download'
+        clitool.download(self.args)
 
         orig_sha256 = ("bc839c0f9195028d375d652e72a5d08d"
                        "293eefd22868493185f084bc4aa61d00")
         sha256 = hashlib.sha256()
-        with open(result, 'rb') as f:
+        with open(self.downloadfile, 'rb') as f:
             sha256.update(f.read())
         new_sha256 = sha256.hexdigest()
         self.assertEqual(orig_sha256, new_sha256)
 
-    def test_download_empty_shard(self):
-        shard = Shard()
-        with self.assertRaises(ShardError):
-            self.stream.download([shard])
+    def test_upload_bad_file(self):
+        self.args.action = 'upload'
+        self.args.file = 'notreal'
+        with self.assertRaises(SystemExit) as ex:
+            clitool.upload(self.args)
+        self.assertEqual(ex.exception.code, 1)
+
+    def test_upload_bad_file_with_verbosity(self):
+        self.args.action = 'upload'
+        self.args.verbose = True
+        self.args.file = 'notreal'
+        with self.assertRaises(SystemExit) as ex:
+            clitool.upload(self.args)
+        self.assertEqual(ex.exception.code, 1)
+
+    def test_download_no_dest(self):
+        self.args.action = 'download'
+        self.args.dest = None
+        filepath = clitool.download(self.args)
+        self.assertTrue(filepath)
+        self.assertTrue(os.path.isfile(filepath))
+
+        orig_sha256 = ("bc839c0f9195028d375d652e72a5d08d"
+                       "293eefd22868493185f084bc4aa61d00")
+        sha256 = hashlib.sha256()
+        with open(filepath, 'rb') as f:
+            sha256.update(f.read())
+        new_sha256 = sha256.hexdigest()
+        self.assertEqual(orig_sha256, new_sha256)
 
     def test_download_bad_dest(self):
-        with self.assertRaises(FileError) as ex:
-            self.stream.download([self.shard], self.uploadfile)
-            self.assertEqual(ex.message, "%s already exists" % self.uploadfile)
+        self.args.action = 'download'
+        self.args.dest = 'tests'
+        with self.assertRaises(FileError):
+            filepath = clitool.download(self.args)
 
-        with self.assertRaises(FileError) as ex:
-            self.stream.download([self.shard], '/path/does/not/exist.file')
-            self.assertEqual(ex.message, '/path/does/not is not a valid path')
+    def test_and_get_dest(self):
+        path, fname = clitool.check_and_get_dest(self.downloadfile)
+        self.assertEqual(os.getcwd(), path)
+        self.assertEqual(fname, self.downloadfile)
+
+        with self.assertRaises(FileError):
+            path, fname = clitool.check_and_get_dest(self.uploadfile)
+
+        with self.assertRaises(FileError):
+            path, fname = clitool.check_and_get_dest('notreal/fakefile')
+
+    def test_and_get_no_dest(self):
+        path, fname = clitool.check_and_get_dest(None)
+        self.assertTrue(path and fname)
+
+    def test_parse_shard_size(self):
+        result = clitool.parse_shard_size('1024')
+        self.assertEqual(result, 1024)
+        result = clitool.parse_shard_size('1024b')
+        self.assertEqual(result, 1024)
+        result = clitool.parse_shard_size('1k')
+        self.assertEqual(result, 1024)
+        result = clitool.parse_shard_size('1m')
+        self.assertEqual(result, SizeHelpers.mib_to_bytes(1))
+        result = clitool.parse_shard_size('1g')
+        self.assertIs(result, None)
+
+    def test_calculate_shards(self):
+        shards = clitool.calculate_shards(self.args, 100, self.uploadfile)
+        self.assertEqual(len(shards), 11)
+        self.assertEqual(shards[0], (0, 100))
+        self.assertEqual(shards[-1], (1000, 1100))
