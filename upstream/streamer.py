@@ -90,74 +90,41 @@ class Streamer(object):
         elif r.status_code == 500:
             raise ResponseError("Server error.")
         elif r.status_code == 201:
-            # Everthing checked out, return result
-            # based on the format selected
             shard = Shard()
             shard.from_json(r.text)
             return shard
         else:
-            raise ResponseError("Received status code %s %s"
+            err = ResponseError("Received status code %s %s"
                                 % (r.status_code, r.reason))
+            err.response = r
+            raise err
 
-    def download(self, shards, dest=None, shardsize=1024, verbose=False):
+    def download(self, shard, slicesize=1024):
         """ Downloads a file from the web-core API.
 
         :param shards: An iterable of upstream.shard.Shard instances
         :param dest: Path to place file as string, otherwise save to CWD using
         filehash as filename
-        :param shardsize: Size of shards to write to disk in bytes
+        :param slicesize: Size of shards to write to disk in bytes
         :return: True if success, else None
         :raise FileError: If dest is not a valid filepath or if already exists
         """
         try:
-            for shard in shards:
-                assert shard.filehash
+            assert shard.filehash
         except AssertionError:
-            raise ShardError("Some shards missing filehash.")
+            raise ShardError("Shard missing filehash.")
 
-        if dest:
-            try:
-                assert not os.path.exists(dest)
-            except AssertionError:
-                raise FileError('%s already exists' % dest)
+        url = "%s/api/download/%s" % (self.server, shard.uri)
 
-            path, fname = os.path.split(dest)
-            if not path:
-                path = os.path.abspath(os.getcwd())
+        r = requests.get(url, stream=True)
+        try:
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as e:
+            err = ResponseError(e.message)
+            err.response = r
+            raise err
 
-            try:
-                assert os.path.isdir(path)
-            except AssertionError:
-                raise FileError('%s is not a valid path' % path)
-        else:
-            path = os.path.abspath(os.getcwd())
-            fname = uuid.uuid4().hex
-        savepath = os.path.join(path, fname)
-        if verbose:
-            print("There are %d shards to download." % len(shards))
-
-        for i, shard in enumerate(shards):
-            url = "%s/api/download/%s" % (self.server, shard.uri)
-
-            if verbose:
-                print("Downloading %s" % url)
-            else:
-                print("Downloading file %d..." % (i + 1))
-            sys.stdout.flush()
-            r = requests.get(url, stream=True)
-            try:
-                r.raise_for_status()
-            except:
-                # We'll continue to raise until futher notice -- no use
-                # writing a file that's broken/incomplete
-                raise
-            if r.status_code == 200:
-                with open(savepath, 'ab') as f:
-                    if verbose:
-                        print("Writing shard.")
-                    for _bytes in r.iter_content(shardsize):
-                        f.write(_bytes)
-        return fname
+        return r
 
     @staticmethod
     def check_path(filepath):
