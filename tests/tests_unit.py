@@ -35,6 +35,7 @@ try:
 except ImportError:
     from unittest import mock
 
+from upstream import clitool
 from upstream.shard import Shard
 from upstream.streamer import Streamer
 from upstream.file import ShardFile, SizeHelpers
@@ -227,8 +228,10 @@ class TestStreamer(unittest.TestCase):
                 ex.message, '~/does-not-exist not a file or not found')
 
     def test_download(self):
-        result = self.stream.download([self.shard], self.downloadfile)
-        self.assertTrue(result)
+        r = self.stream.download(self.shard)
+        self.assertTrue(r)
+        self.assertEquals(r.status_code, 200)
+        self.assertEqual(len(r.content), 1024)
 
         orig_sha256 = ("bc839c0f9195028d375d652e72a5d08d"
                        "293eefd22868493185f084bc4aa61d00")

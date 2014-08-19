@@ -25,15 +25,16 @@
 from __future__ import print_function
 
 import os
-
 import sys
 import argparse
 import math
+import uuid
+
 import progressbar
 
 import upstream
 from upstream.shard import Shard
-from upstream.exc import FileError
+from upstream.exc import FileError, ResponseError
 from upstream.file import SizeHelpers
 from upstream.streamer import Streamer
 
@@ -61,6 +62,27 @@ class ProgressCallback(object):
         if not self.started:
             self.bar.start()
             self.bar.update(values[0])
+
+
+def test_dest(dest):
+    if dest:
+            try:
+                assert not os.path.exists(dest)
+            except AssertionError:
+                raise FileError('%s already exists' % dest)
+
+            path, fname = os.path.split(dest)
+            if not path:
+                path = os.path.abspath(os.getcwd())
+
+            try:
+                assert os.path.isdir(path)
+            except AssertionError:
+                raise FileError('%s is not a valid path' % path)
+    else:
+            path = os.path.abspath(os.getcwd())
+            fname = uuid.uuid4().hex
+    return path, fname
 
 
 def parse_shard_size(size):
@@ -127,12 +149,16 @@ def upload(args):
         i = idx + 1
         start = shard[0]
         callback = ProgressCallback()
-        shard = streamer.upload(
-            args.file,
-            start_pos=start,
-            shard_size=shard_size,
-            callback=callback.callback
-        )
+        try:
+            shard = streamer.upload(
+                args.file,
+                start_pos=start,
+                shard_size=shard_size,
+                callback=callback.callback
+            )
+        except ResponseError as e:
+            print()
+
         callback.bar.finish()
         sys.stdout.flush()
         if args.verbose:
@@ -156,19 +182,36 @@ def download(args):
         shard.from_uri(uri)
         shards.append(shard)
 
+    if args.verbose:
+            print("There are %d shards to download." % len(shards))
+
     streamer = Streamer(args.server)
     if args.verbose:
         print("Connecting to %s..." % streamer.server)
 
-    result = streamer.download(
-        shards, dest=args.dest, shardsize=8096, verbose=args.verbose
-    )
+    path, fname = test_dest(args.dest)
+    savepath = os.path.join(path, fname)
+    for i, shard in enumerate(shards):
+        if args.verbose:
+            print("Downloading file %s..." % shard.uri)
+        else:
+            print("Downloading file %d..." % (i + 1))
+        sys.stdout.flush()
+        try:
+            r = streamer.download(shard, slicesize=8096)
+        except ResponseError as e:
+            sys.stderr.write("\nError!\n")
+            sys.stderr.write("%s  %s\n" % (e.response.status_code,
+                                           e.response.reason))
+            sys.stderr.write("%s\n" % e.response.text)
+            raise
+        with open(savepath, 'ab') as f:
+            if args.verbose:
+                print("Writing shard.")
+            for _bytes in r.iter_content():
+                    f.write(_bytes)
 
-    if result:
-        print("\nDownloaded to %s." % (args.dest or shard.filehash))
-    else:
-        print("Something bad happened.")
-        sys.exit(1)
+    print("\nDownloaded to %s." % (args.dest or shard.filehash))
 
 
 def parse_args():
