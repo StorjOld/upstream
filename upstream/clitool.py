@@ -60,7 +60,13 @@ class ProgressCallback(object):
             self.bar.update(values[0])
 
 
-def test_dest(dest):
+def check_and_get_dest(dest):
+    """ Validates and returns a download file and path
+
+    :param dest: filepath as string
+    :return: filepath, filename as tuple
+    :raise FileError: IF file exists or not found
+    """
     if dest:
             try:
                 assert not os.path.exists(dest)
@@ -185,7 +191,7 @@ def download(args):
     if args.verbose:
         print("Connecting to %s..." % streamer.server)
 
-    path, fname = test_dest(args.dest)
+    path, fname = check_and_get_dest(args.dest)
     savepath = os.path.join(path, fname)
     for i, shard in enumerate(shards):
         if args.verbose:
