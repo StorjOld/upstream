@@ -24,10 +24,8 @@
 # SOFTWARE.
 
 import os
-import uuid
 
 from requests_toolbelt import MultipartEncoder
-import sys
 
 try:
     from urllib2 import urlopen, URLError
