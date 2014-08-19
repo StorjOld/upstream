@@ -241,7 +241,7 @@ class TestStreamer(unittest.TestCase):
         shard = Shard()
         with self.assertRaises(ShardError) as e:
             self.stream.download(shard)
-        self.assertEqual(e.exception.message, "Shard missing filehash.")
+        self.assertEqual(str(e.exception), "Shard missing filehash.")
 
 
 class TestClitool(unittest.TestCase):

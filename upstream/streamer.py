@@ -118,7 +118,7 @@ class Streamer(object):
         try:
             r.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            err = ResponseError(e.message)
+            err = ResponseError(str(e))
             err.response = r
             raise err
 

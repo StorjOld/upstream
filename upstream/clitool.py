@@ -141,7 +141,7 @@ def upload(args):
     try:
         filepath = Streamer.check_path(args.file)
     except FileError as e:
-        sys.stderr.write('%s\n' % e.message)
+        sys.stderr.write('%s\n' % str(e))
         sys.exit(1)
 
     streamer = Streamer(args.server)
