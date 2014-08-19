@@ -55,7 +55,7 @@ class Streamer(object):
         https://stackoverflow.com/questions/3764291/checking-network-connection
         """
         try:
-            urlopen(self.server, timeout=1)
+            urlopen(self.server, timeout=2)
         except URLError:
             raise ConnectError("Could not connect to server.")
 
