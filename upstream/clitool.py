@@ -34,13 +34,9 @@ import progressbar
 
 import upstream
 from upstream.shard import Shard
-from upstream.exc import FileError, ResponseError
 from upstream.file import SizeHelpers
 from upstream.streamer import Streamer
-
-
-def printcallback(value):
-    print(value)
+from upstream.exc import FileError, ResponseError
 
 
 class ProgressCallback(object):
