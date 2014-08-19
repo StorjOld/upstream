@@ -159,13 +159,17 @@ def upload(args):
                 callback=callback.callback
             )
         except ResponseError as e:
-            print()
-
+            sys.stderr.write("\nError!\n")
+            sys.stderr.write("%s  %s\n" % (e.response.status_code,
+                                           e.response.reason))
+            sys.stderr.write("%s\n" % e.response.text)
+            raise
         callback.bar.finish()
         sys.stdout.flush()
         if args.verbose:
             print("\nShard %d - URI: %s\n" % (i, shard.uri))
         shard_info.append(shard.uri)
+
     print()
     print("Download this file by using the following command: ")
     print("upstream download --uri", " ".join(shard_info), "--dest <filename>")
@@ -213,7 +217,8 @@ def download(args):
             for _bytes in r.iter_content():
                     f.write(_bytes)
 
-    print("\nDownloaded to %s." % (args.dest or shard.filehash))
+    print("\nDownloaded to %s." % savepath)
+    return fname
 
 
 def parse_args():
