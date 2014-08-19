@@ -26,8 +26,6 @@
 import os
 import json
 import hashlib
-import random
-import types
 import unittest
 
 try:
@@ -38,7 +36,7 @@ except ImportError:
 from upstream import clitool
 from upstream.shard import Shard
 from upstream.streamer import Streamer
-from upstream.file import ShardFile, SizeHelpers
+from upstream.file import SizeHelpers
 from upstream.exc import ConnectError, FileError, ShardError, ResponseError
 
 
