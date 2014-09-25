@@ -2,6 +2,7 @@ upstream
 ========
 
 [![Build Status](https://drone.io/github.com/Storj/upstream/status.png)](https://drone.io/github.com/Storj/upstream/latest)
+[![Coverage Status](https://img.shields.io/coveralls/Storj/upstream.svg)](https://coveralls.io/r/Storj/upstream)
 
 Command line tool for uploading and downloading files from Metadisk and web-core.
 
