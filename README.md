@@ -3,7 +3,7 @@ upstream
 
 [![Build Status](https://drone.io/github.com/Storj/upstream/status.png)](https://drone.io/github.com/Storj/upstream/latest)
 
-Command line tool for uploading and downloading files from Metadisk and web-core.
+Command line tool for uploading and downloading files from MetaDisk and web-core.
 
 ## CLI
 
@@ -92,7 +92,7 @@ $ shasum 10megs.bin my-downloaded-file-10megs.bin
 
 ```
 ## Shard Class
-The shard class is for stores information about an encrypted shard, including its hash and decryption key. This allows us to be able to covert between various formats needed in this tool and [Metadisk](https://github.com/storj/metadisk). 
+The shard class is for stores information about an encrypted shard, including its hash and decryption key. This allows us to be able to covert between various formats needed in this tool and [MetaDisk](https://github.com/storj/metadisk). 
 
 ### Example Usage 
 ```
@@ -123,7 +123,7 @@ shard = streamer.upload(path)
 ```
 
 ### Upload Example
-File is uploaded via a POST request to the [Metadisk](http://metadisk.org) node via its [web-core](https://github.com/Storj/web-core#api-documentation) API. There is currently a node running [here](http://node1.storj.io). Currently our default shard size is 32 MB.
+File is uploaded via a POST request to the [MetaDisk](http://metadisk.org) node via its [web-core](https://github.com/Storj/web-core#api-documentation) API. There is currently a node running [here](http://node1.storj.io). Currently our default shard size is 32 MB.
 
 	up = Upstream("http://node1.metadisk.org")
 	shard = up.upload("C:\\Users\\super3\\Code\\upstream\\test.txt")
