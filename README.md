@@ -3,7 +3,7 @@ upstream
 
 [![Build Status](https://drone.io/github.com/Storj/upstream/status.png)](https://drone.io/github.com/Storj/upstream/latest)
 
-Command line tool for uploading and downloading files from MetaDisk and web-core.
+Upstream is a command line tool for uploading and downloading files from MetaDisk and web-core.
 
 ## CLI
 
@@ -26,6 +26,7 @@ optional arguments:
 ```
 
 ### Upload
+
 ```
 $ upstream upload --help
 usage: Upstream upload [-h] [--shard-size SHARD_SIZE] file
@@ -57,6 +58,7 @@ upstream download --uri 05034bfffb47a5d0e810b9666a9832cb97f78525ad7979dc496a45f6
 ```
 
 ### Download
+
 ```
 $ upstream download --help
 usage: Upstream download [-h] --uri URI [URI ...] [--dest DEST]
@@ -91,10 +93,13 @@ $ shasum 10megs.bin my-downloaded-file-10megs.bin
 1ed47c6d1061f18bfae227713bedd10956744fd4  my-downloaded-file-10megs.bin
 
 ```
+
 ## Shard Class
-The shard class is for stores information about an encrypted shard, including its hash and decryption key. This allows us to be able to covert between various formats needed in this tool and [MetaDisk](https://github.com/storj/metadisk). 
+
+The shard class stores information about an encrypted shard including its hash and decryption key. This allows us to be able to convert between various formats needed in this tool and [MetaDisk](https://github.com/storj/metadisk). 
 
 ### Example Usage 
+
 ```
 cryptkey = "2b77e64156f9f7eb16d74b98f70417e4d665d977d0ef00e793d41767acf13e8c"
 filehash = "5547a152337de9ff6a97f6f099bb024e08af419cee613b18da76a33e581d49ac"
@@ -114,16 +119,19 @@ print full_shard.get_json()
 Documented in docstrings, Sphinx compatible.
 
 ## Streamer Class
+
 These are the transfer functions that are used to upload and download raw data to/from a node.
 
 ### Upload Usage
+
 ```
 streamer = Streamer('http://node1.metadisk.org')
 shard = streamer.upload(path)
 ```
 
 ### Upload Example
-File is uploaded via a POST request to the [MetaDisk](http://metadisk.org) node via its [web-core](https://github.com/Storj/web-core#api-documentation) API. There is currently a node running [here](http://node1.storj.io). Currently our default shard size is 32 MB.
+
+File is uploaded via a POST request to the [MetaDisk](http://metadisk.org) node via its [web-core](https://github.com/Storj/web-core#api-documentation) API. There is currently a node running [here](http://node1.storj.io). Our default shard size is currently 32 MB.
 
 	up = Upstream("http://node1.metadisk.org")
 	shard = up.upload("C:\\Users\\super3\\Code\\upstream\\test.txt")
@@ -147,4 +155,3 @@ result = streamer.download(shard, destination)
 ### Full Spec
 
 Documented in docstrings, Sphinx compatible.
-
