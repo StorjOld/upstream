@@ -81,16 +81,11 @@ class ShardFile(object):
     def __len__(self):
         return self.max_seek - self.tell()
 
-    def next(self):
+    def __next__(self):
         if not hasattr(self, '_slicegen'):
             self._slicegen = self._generate_slices()
         result = next(self._slicegen)
-        if not result:
-            raise StopIteration
         return result
-
-    # Py3 Support
-    __next__ = next
 
     def read(self, size=None):
         """ Reads the value of size from the file object and returns.  Will
