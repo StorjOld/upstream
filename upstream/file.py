@@ -20,6 +20,7 @@ import os
 
 
 class ShardFile(object):
+
     """ A custom file-like object where files can be read as shards, i.e. a
     file can be sharded by multiple processes, each with their own start
     and end point.  ShardFile is an iterator, and therefore supports use
@@ -38,6 +39,7 @@ class ShardFile(object):
             do_something(with=slice)
 
     """
+
     def __init__(self, filename, mode='r', buffering=-1, shard_size=262144000,
                  start_pos=0, read_size=1024, callback=None):
         """ Initializes with sane defaults similar to the builtin function
@@ -186,6 +188,7 @@ class ShardFile(object):
 
 
 class SizeHelpers(object):
+
     @staticmethod
     def bytes_to_kib(value):
         return value / 1024

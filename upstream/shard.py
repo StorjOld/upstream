@@ -28,6 +28,7 @@ from upstream.exc import ShardError
 
 
 class Shard(object):
+
     def __init__(self, filehash=None, decryptkey=None, filename=None,
                  filepath=None):
         """ Stores information about an encryted shard. Allows for

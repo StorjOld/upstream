@@ -40,6 +40,7 @@ from upstream.exc import FileError, ResponseError
 
 
 class ProgressCallback(object):
+
     def __init__(self):
         self.bar = None
         self.started = False
@@ -68,22 +69,22 @@ def check_and_get_dest(dest):
     :raise FileError: IF file exists or not found
     """
     if dest:
-            try:
-                assert not os.path.exists(dest)
-            except AssertionError:
-                raise FileError('%s already exists' % dest)
+        try:
+            assert not os.path.exists(dest)
+        except AssertionError:
+            raise FileError('%s already exists' % dest)
 
-            path, fname = os.path.split(dest)
-            if not path:
-                path = os.path.abspath(os.getcwd())
-
-            try:
-                assert os.path.isdir(path)
-            except AssertionError:
-                raise FileError('%s is not a valid path' % path)
-    else:
+        path, fname = os.path.split(dest)
+        if not path:
             path = os.path.abspath(os.getcwd())
-            fname = uuid.uuid4().hex
+
+        try:
+            assert os.path.isdir(path)
+        except AssertionError:
+            raise FileError('%s is not a valid path' % path)
+    else:
+        path = os.path.abspath(os.getcwd())
+        fname = uuid.uuid4().hex
     return path, fname
 
 
@@ -189,7 +190,7 @@ def download(args):
         shards.append(shard)
 
     if args.verbose:
-            print("There are %d shards to download." % len(shards))
+        print("There are %d shards to download." % len(shards))
 
     streamer = Streamer(args.server)
     if args.verbose:
@@ -215,7 +216,7 @@ def download(args):
             if args.verbose:
                 print("Writing shard.")
             for _bytes in r.iter_content():
-                    f.write(_bytes)
+                f.write(_bytes)
 
     print("\nDownloaded to %s." % savepath)
     return fname
