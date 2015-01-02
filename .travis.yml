@@ -1,0 +1,16 @@
+language: python
+python:
+- 2.7
+- 3.3
+- 3.4
+install:
+- pip install coverage coveralls
+- python setup.py install
+script:
+- coverage run setup.py test -a "--doctest-modules --pep8 -v tests/ upstream/"
+- coverage report -m --include="upstream/*"
+after_success:
+- coveralls
+notifications:
+  slack:
+    secure: Nx1lcl41YC3cB73D+vjJmHShVDLclPYGQI2+3+L21HCYK9SC6G2YW/BDAXA1Ens4kF9BnyHnD1+EGrKDMlHXy4ca4VqctAz0iNvZroqfrE+PIclZqwWxJzK3ZDlk5M+B+qVRFOizlkILPSpRhhhlUzTW6o/1wIrcmgkqHO/h65k=
