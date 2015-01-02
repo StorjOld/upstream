@@ -176,8 +176,8 @@ class Streamer(object):
         :raise NotImplementedError: Raises this error on any call.
         """
         raise NotImplementedError
-        validpath = self.check_path(filepath)
-        return requests.post(url, data=self._filestream(validpath))
+        # validpath = self.check_path(filepath)
+        # return requests.post(url, data=self._filestream(validpath))
 
     def _filestream(self, filepath):
         """ Streaming file generator.  Useful when chunked transfer encoding
