@@ -1,4 +1,4 @@
-upstream
+Upstream
 ========
 
 [![Build Status](https://travis-ci.org/Storj/upstream.svg)](https://travis-ci.org/Storj/upstream) [![Coverage Status](https://img.shields.io/coveralls/Storj/upstream.svg)](https://coveralls.io/r/Storj/upstream)
