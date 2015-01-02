@@ -161,9 +161,7 @@ def upload(args):
             )
         except ResponseError as e:
             sys.stderr.write("\nError!\n")
-            sys.stderr.write("%s  %s\n" % (e.response.status_code,
-                                           e.response.reason))
-            sys.stderr.write("%s\n" % e.response.text)
+            sys.stderr.write("%s\n" % e.message)
             raise
         callback.bar.finish()
         sys.stdout.flush()
