@@ -155,3 +155,9 @@ class TestShardFile(unittest.TestCase):
         self.shard._calc_total_read()
         self.assertEqual(
             self.shard.total_read_bytes, self.shard.max_seek - number)
+
+    def test_size_helpers_bytes_to_kib(self):
+        self.assertEqual(SizeHelpers.bytes_to_kib(1024), 1)
+
+    def test_size_helpers_bytes_to_mib(self):
+        self.assertEqual(SizeHelpers.bytes_to_mib(1048576), 1)
