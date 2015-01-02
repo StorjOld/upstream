@@ -1,7 +1,7 @@
 upstream
 ========
 
-[![Build Status](https://drone.io/github.com/Storj/upstream/status.png)](https://drone.io/github.com/Storj/upstream/latest)
+[![Build Status](https://travis-ci.org/Storj/upstream.svg)](https://travis-ci.org/Storj/upstream) [![Coverage Status](https://img.shields.io/coveralls/Storj/upstream.svg)](https://coveralls.io/r/Storj/upstream)
 
 Upstream is a command line tool for uploading and downloading files from MetaDisk and web-core.
 
