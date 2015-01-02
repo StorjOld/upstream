@@ -26,6 +26,7 @@
 import types
 import random
 import unittest
+import pdb
 
 from upstream.file import SizeHelpers, ShardFile
 
@@ -71,11 +72,14 @@ class TestShardFile(unittest.TestCase):
             while True:
                 next(self.shard)
 
-    # def test_read_fail(self):
-    #    with self.assertRaises(IOError) as ex:
-    #        self.shard.read(SizeHelpers.mib_to_bytes(2))
-    #        self.assertTrue(
-    #            ex.exception.message.startswith('Read will exceed maximum'))
+    def test_init_callback(self):
+        test_shard = ShardFile(self.testfile, 'rb', callback=callback)
+        self.assertEqual(test_shard.callback, callback)
+
+    def test__len__(self):
+        fivetwelvekay = SizeHelpers.kib_to_bytes(512)
+        self.shard.read(fivetwelvekay)
+        self.assertTrue(self.shard.__len__() < self.shard.max_seek)
 
     def test_read_with_size(self):
         fivetwelvekay = SizeHelpers.kib_to_bytes(512)
@@ -85,6 +89,11 @@ class TestShardFile(unittest.TestCase):
     def test_read_no_size(self):
         read = self.shard.read()
         self.assertEqual(len(read), SizeHelpers.mib_to_bytes(1))
+
+    def test_read_loc_is_maxseek(self):
+        self.shard.read(self.shard.max_seek)
+        read_more = self.shard.read(1)
+        self.assertEqual(read_more, '')
 
     def test_seek(self):
         number = random.randint(1, SizeHelpers.kib_to_bytes(768))
