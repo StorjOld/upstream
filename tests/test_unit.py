@@ -157,7 +157,13 @@ class TestStreamer(unittest.TestCase):
 
     @mock.patch('requests.post')
     def test_upload_sharded_encoded(self, post):
-        pass
+        with self.assertRaises(NotImplementedError):
+            self.stream._upload_sharded_encoded('http://fake.url', 'fake.path')
+
+    @mock.patch('requests.post')
+    def test_filestream(self, post):
+        with self.assertRaises(NotImplementedError):
+            self.stream._filestream('fake.path')
 
     def test_upload(self):
         # Upload file and check file
