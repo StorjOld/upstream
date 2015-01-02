@@ -127,6 +127,7 @@ class TestClitool(unittest.TestCase):
             sha256.update(f.read())
         new_sha256 = sha256.hexdigest()
         self.assertEqual(orig_sha256, new_sha256)
+        os.remove(filepath)
 
     def test_download_bad_dest(self):
         self.args.action = 'download'
