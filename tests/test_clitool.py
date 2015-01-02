@@ -58,14 +58,13 @@ class TestClitool(unittest.TestCase):
         del self.stream
         del self.orig_hash
         del self.uploadfile
-        try:
+
+        if os.path.exists(self.downloadfile):
             os.remove(self.downloadfile)
-        except:
-            pass
-        try:
+
+        if os.path.exists(self.shard.filehash):
             os.remove(self.shard.filehash)
-        except:
-            pass
+
         del self.downloadfile
         del self.shard
         del self.args
