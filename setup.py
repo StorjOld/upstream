@@ -34,6 +34,7 @@ install_requirements = [
     'argparse',
     'py3-progressbar==2.4dev',
     'requests',
+    'six'
 ]
 
 test_requirements = [
