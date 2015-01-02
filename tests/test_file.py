@@ -26,8 +26,6 @@
 import types
 import random
 import unittest
-import pytest
-import pdb
 
 from upstream.file import SizeHelpers, ShardFile
 
