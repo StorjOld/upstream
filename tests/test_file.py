@@ -26,6 +26,7 @@
 import types
 import random
 import unittest
+import pytest
 import pdb
 
 from upstream.file import SizeHelpers, ShardFile
@@ -65,12 +66,11 @@ class TestShardFile(unittest.TestCase):
         del self.new_shard
 
     def test_next(self):
-        result = next(self.shard)
+        result = self.shard.__next__()
         self.assertTrue(result)
-
         with self.assertRaises(StopIteration):
             while True:
-                next(self.shard)
+                self.shard.__next__()
 
     def test_init_callback(self):
         test_shard = ShardFile(self.testfile, 'rb', callback=callback)
