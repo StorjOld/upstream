@@ -152,17 +152,12 @@ def upload(args):
         i = idx + 1
         start = shard[0]
         callback = ProgressCallback()
-        try:
-            shard = streamer.upload(
-                args.file,
-                start_pos=start,
-                shard_size=shard_size,
-                callback=callback.callback
-            )
-        except ResponseError as e:
-            sys.stderr.write("\nError!\n")
-            sys.stderr.write("%s\n" % e.message)
-            raise
+        shard = streamer.upload(
+            args.file,
+            start_pos=start,
+            shard_size=shard_size,
+            callback=callback.callback
+        )
         callback.bar.finish()
         sys.stdout.flush()
         if args.verbose:
