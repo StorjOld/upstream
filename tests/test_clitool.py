@@ -32,7 +32,7 @@ from upstream import clitool
 from upstream.shard import Shard
 from upstream.streamer import Streamer
 from upstream.file import SizeHelpers
-from upstream.exc import FileError
+from upstream.exc import FileError, ResponseError
 
 
 class TestClitool(unittest.TestCase):
@@ -68,6 +68,11 @@ class TestClitool(unittest.TestCase):
         del self.downloadfile
         del self.shard
         del self.args
+
+    def test_doomed_upload(self):
+        self.args.action = 'upload'
+        self.args.server = 'http://metadisk.org'
+        self.assertRaises(ResponseError, clitool.upload, self.args)
 
     def test_upload_download(self):
         self.args.action = 'upload'
