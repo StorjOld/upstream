@@ -36,7 +36,7 @@ import upstream
 from upstream.shard import Shard
 from upstream.file import SizeHelpers
 from upstream.streamer import Streamer
-from upstream.exc import FileError, ResponseError
+from upstream.exc import FileError
 
 
 class ProgressCallback(object):
@@ -197,14 +197,9 @@ def download(args):
         else:
             print("Downloading file %d..." % (i + 1))
         sys.stdout.flush()
-        try:
-            r = streamer.download(shard, slicesize=8096)
-        except ResponseError:
-            sys.stderr.write("\nError!\n")
-            sys.stderr.write("%s  %s\n" % (r.response.status_code,
-                                           r.response.reason))
-            sys.stderr.write("%s\n" % r.response.text)
-            raise
+
+        r = streamer.download(shard, slicesize=8096)
+
         with open(savepath, 'ab') as f:
             if args.verbose:
                 print("Writing shard.")
