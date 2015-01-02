@@ -81,6 +81,10 @@ class TestShard(unittest.TestCase):
         del self.shard2
         del self.json_dict
 
+    def test_shard_with_malformed_uri(self):
+        shard = Shard()
+        self.assertRaises(ShardError, shard.from_uri, 'funkymonkey')
+
     def test_getters_empty_shard(self):
         def _callable(meth):
             meth = getattr(self.empty_shard, meth)
