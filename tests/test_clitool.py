@@ -24,6 +24,7 @@
 # SOFTWARE.
 
 import os
+import sys
 import hashlib
 import unittest
 import mock
@@ -32,7 +33,7 @@ from upstream import clitool
 from upstream.shard import Shard
 from upstream.streamer import Streamer
 from upstream.file import SizeHelpers
-from upstream.exc import FileError, ResponseError
+from upstream.exc import FileError, ResponseError, ShardError
 
 
 class TestClitool(unittest.TestCase):
@@ -68,6 +69,16 @@ class TestClitool(unittest.TestCase):
         del self.downloadfile
         del self.shard
         del self.args
+
+    def test_main(self):
+        sys.argv = ['', 'upload', 'nothing']
+        with self.assertRaises(SystemExit) as cm:
+            clitool.main()
+        self.assertEqual(cm.exception.code, 1)
+
+        sys.argv = ['', 'download', '--uri', 'nohash']
+        with self.assertRaises(ShardError) as cm:
+            clitool.main()
 
     def test_doomed_upload(self):
         self.args.action = 'upload'
