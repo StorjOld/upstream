@@ -13,4 +13,4 @@ after_success:
 - coveralls
 notifications:
   slack:
-    secure: Nx1lcl41YC3cB73D+vjJmHShVDLclPYGQI2+3+L21HCYK9SC6G2YW/BDAXA1Ens4kF9BnyHnD1+EGrKDMlHXy4ca4VqctAz0iNvZroqfrE+PIclZqwWxJzK3ZDlk5M+B+qVRFOizlkILPSpRhhhlUzTW6o/1wIrcmgkqHO/h65k=
+    secure: KTeYhA+7DcHzCrMifIeOxYzkr9O0Oajq5qLaiNEtXkSeRWKyUgtZpN/liPOk9dvpJjdhWKq9imCirKlMz7UFAPUy1ypBiPR+9wTiJFWnwRtPADJRcgW6pOyVb4nNgIDD9Ncub+fq/XFwx7cmjlx3D+v3pRWK6gYBl/2hUGWZ/oc=
