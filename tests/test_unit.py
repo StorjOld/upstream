@@ -41,6 +41,7 @@ from upstream.exc import ConnectError, FileError, ShardError, ResponseError
 
 
 class TestShard(unittest.TestCase):
+
     def setUp(self):
         self.cryptkey = ("2b77e64156f9f7eb16d74b98f70417e4"
                          "d665d977d0ef00e793d41767acf13e8c")
@@ -111,6 +112,7 @@ class TestShard(unittest.TestCase):
 
 
 class TestStreamer(unittest.TestCase):
+
     def setUp(self):
         self.stream = Streamer("http://node1.metadisk.org")
         self.orig_hash = None
@@ -188,7 +190,7 @@ class TestStreamer(unittest.TestCase):
 
         def _fourohtwo():
             self.stream.upload(self.uploadfile)
-        with self.assertRaises(ResponseError) as ex:
+        with self.assertRaises(ResponseError):
             _fourohtwo()
 
     def test_upload_patched_500(self):
@@ -206,7 +208,8 @@ class TestStreamer(unittest.TestCase):
         self.stream._upload_form_encoded = mock.MagicMock()
         self.stream._upload_form_encoded.return_value()
         self.stream._upload_form_encoded.return_value.status_code = 501
-        self.stream._upload_form_encoded.return_value.reason = "Not Implemented"
+        self.stream._upload_form_encoded.return_value.reason =\
+            "Not Implemented"
 
         def _fiveohone():
             self.stream.upload(self.uploadfile)
@@ -234,7 +237,7 @@ class TestStreamer(unittest.TestCase):
     def test_download_exception(self):
         self.shard.filehash = self.shard.filehash[:-5]
         with self.assertRaises(ResponseError) as ex:
-            r = self.stream.download(self.shard)
+            self.stream.download(self.shard)
         self.assertEqual(ex.exception.response.status_code, 404)
 
     def test_download_empty_shard(self):
@@ -245,6 +248,7 @@ class TestStreamer(unittest.TestCase):
 
 
 class TestClitool(unittest.TestCase):
+
     def setUp(self):
         self.stream = Streamer("http://node1.metadisk.org")
         self.orig_hash = None
@@ -341,7 +345,7 @@ class TestClitool(unittest.TestCase):
         self.args.action = 'download'
         self.args.dest = 'tests'
         with self.assertRaises(FileError):
-            filepath = clitool.download(self.args)
+            clitool.download(self.args)
 
     def test_and_get_dest(self):
         path, fname = clitool.check_and_get_dest(self.downloadfile)
