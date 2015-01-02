@@ -187,15 +187,15 @@ class Streamer(object):
         :raise FileError: If path is not valid
         """
         raise NotImplementedError
-        expandedpath = os.path.expanduser(filepath)
-        try:
-            os.path.isfile(expandedpath)
-        except AssertionError:
-            raise FileError("%s not a file or not found" % filepath)
+        # expandedpath = os.path.expanduser(filepath)
+        # try:
+        #    os.path.isfile(expandedpath)
+        # except AssertionError:
+        #    raise FileError("%s not a file or not found" % filepath)
 
-        with open(expandedpath, 'rb') as f:
-            while True:
-                shard = f.read(self.shard_size)
-                if not shard:
-                    break
-                yield shard
+        # with open(expandedpath, 'rb') as f:
+        #    while True:
+        #        shard = f.read(self.shard_size)
+        #        if not shard:
+        #            break
+        #        yield shard
