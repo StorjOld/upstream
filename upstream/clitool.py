@@ -204,11 +204,11 @@ def download(args):
         sys.stdout.flush()
         try:
             r = streamer.download(shard, slicesize=8096)
-        except ResponseError as e:
+        except ResponseError:
             sys.stderr.write("\nError!\n")
-            sys.stderr.write("%s  %s\n" % (e.response.status_code,
-                                           e.response.reason))
-            sys.stderr.write("%s\n" % e.response.text)
+            sys.stderr.write("%s  %s\n" % (r.response.status_code,
+                                           r.response.reason))
+            sys.stderr.write("%s\n" % r.response.text)
             raise
         with open(savepath, 'ab') as f:
             if args.verbose:
