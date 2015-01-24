@@ -87,5 +87,5 @@ setup(
             'upstream = upstream.clitool:main'
         ]
     },
-    keywords=['storj', 'upstream', 'metadisk', 'driveshare']
+    keywords=['storj', 'upstream', 'metadisk', 'driveshare', 'farming', 'storjtorrent']
 )
