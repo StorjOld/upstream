@@ -117,9 +117,9 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --shard-size SHARD_SIZE
-                        Size of shards to break file into and to upload, max:
+                        Size of shards to break file into and to seed, max:
                         250m, default: 250m. Ex. 25m - file will be broken
-                        into 25 MB shards and uploaded shard by shard
+                        into 25 MB shards and seeded simultaneously
 ```
 
 To seed a specific file using the default shard size:
