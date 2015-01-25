@@ -6,6 +6,11 @@ Upstream is a command line tool for uploading and downloading files from MetaDis
 
 **NOTE**: This software is currently designed for testing purposes only. Do not use in production environments with sensitive files.
 
+## Dependencies
+
+Upstream (roundtrip) uses the [storjtorrent](https://github.com/storj/storjtorrent) library, which requires that libtorrent and its python bindings 
+are properly installed. 
+
 
 ## CLI
 
