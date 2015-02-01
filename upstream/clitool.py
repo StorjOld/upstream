@@ -210,16 +210,34 @@ def download(args):
     return fname
 
 
+def seed(args):
+    """ Controls actions for seeding a file to the network
+
+    :param args: Argparse namespace
+    """
+    pass
+
+
+def retrieve(args):
+    """ Controls actions for retrieving and reconstituting a file from the network
+
+    :param args: Argparse namespace
+    """
+    pass
+
+
 def parse_args():
     """ Parses args
 
     :return: argparse namespace
     """
-    parser = argparse.ArgumentParser("Upstream",
-                                     description="Command line client for "
-                                                 "the Storj web-core API")
-    parser.add_argument('--server', default='http://node1.metadisk.org',
-                        help='Metadisk node to connect to')
+    parser = argparse.ArgumentParser('Upstream',
+                                     description='Command line client to '
+                                     'transmit and receive file data from '
+                                     'MetaDisk and the Storj network.')
+    parser.add_argument('--server', default='http://node2.metadisk.org',
+                        help='Metadisk node to connect to or verification node'
+                        ' to notify')
     parser.add_argument('-v', dest='verbose',
                         action='store_true', help='Verbose output')
     parser.add_argument('--version', action='version',
@@ -251,6 +269,25 @@ def parse_args():
                                  help="Folder or file to download file")
     download_parser.add_argument('--shard-size', type=int, default=1024)
 
+    seed_parser = subparser.add_parser('seed', help='Seed the shards for a '
+                                       'specified file')
+    seed_parser.add_argument('--shard-size',
+                             default=SizeHelpers.mib_to_bytes(250),
+                             help='Size of shards to break file into and to '
+                             'seed, max: 250m, default'': 250m. Ex. 25m - file'
+                             ' will be broken into 25 MB shards and seeded '
+                             'simultaneously.')
+    seed_parser.add_argument('file', help='File to shard and seed to network.')
+
+    retrieve_parser = subparser.add_parser('retrieve', help='Retrieve and '
+                                           'reconstitute shards for a given '
+                                           'file from farmers')
+    retrieve_parser.add_argument('--file', required=True, help='File to '
+                                 'retrieve and reconstitute from the Storj '
+                                 'network.')
+    retrieve_parser.add_argument('--dest',
+                                 help='Folder or file to download file to')
+
     return parser.parse_args()
 
 
@@ -260,6 +297,10 @@ def main():
         upload(args)
     elif args.action == 'download':
         download(args)
+    elif args.action == 'seed':
+        seed(args)
+    elif args.action == 'retrieve':
+        retrieve(args)
 
 
 if __name__ == '__main__':
