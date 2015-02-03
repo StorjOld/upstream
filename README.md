@@ -118,8 +118,8 @@ optional arguments:
   -h, --help            show this help message and exit
   --shard-size SHARD_SIZE
                         Size of shards to break file into and to seed, max:
-                        250m, default: 250m. Ex. 25m - file will be broken
-                        into 25 MB shards and seeded simultaneously
+                        250m, default: 10m. Ex. 100m - file will be broken
+                        into 10 MB shards and seeded simultaneously
 ```
 
 To seed a specific file using the default shard size:
@@ -138,23 +138,24 @@ Upon the seeding of your shards, you will see the current status of each shard. 
 example below indicates several possible status messages:
 
 ```
-Transmitting Shard 1: Sending infohash to verification server...
-Transmitting Shard 2: Sending infohash to verification server...
-Transmitting Shard 3: Waiting for verification server to retrieve shard...
-Transmitting Shard 4: Assigning shard to farmer(s)...
-Transmitting Shard 5: Verifying farmer(s) receipt of shard...
-Transmitting Shard 6: Ready!
+Shard 1: 20%  |######                        | Status: Sending infohash to verification server...
+Shard 2: 20%  |######                        | Status: Sending infohash to verification server...
+Shard 3: 40%  |############                  | Status: Waiting for verification server to retrieve shard...
+Shard 4: 60%  |##################            | Status: Assigning shard to farmer(s)...
+Shard 5: 80%  |########################      | Status: Verifying farmer(s) receipt of shard...
+Shard 6: 100% |##############################| Status: Ready!
 ```
 
 Seeding your file will create a directory containing each encrypted shard and a corresponding
 data file containing information used to retrieve and reconstruct your file.
 
-For example, the `60megs.bin` file would have an associated `60megs.bin.info` file containing 
+For example, the `60megs.bin` file would have an associated `shard_catalog.json` file containing 
 something similar to the following example:
 
 ```
 {
-  'shard_size': '10m',
+  'shard_size': 250000000,
+  'passphrase': 'this-is-like-the-best-password',
   'shard_catalog': {
     '1': {
         'infohash': '9E3JAGK9B6W0DQDPF53LZZ23ZNS8QLGA',
