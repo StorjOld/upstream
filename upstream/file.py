@@ -114,9 +114,21 @@ class ShardFile(object):
         """ Calls directly to the file object's seek method.
 
         :param args: positional args
-        :param kwargs: keword args
+        :param kwargs: keyword args
         """
         self._f_obj.seek(*args, **kwargs)
+
+    def write(self, *args, **kwargs):
+        """ Calls directly to the file object's write method.
+
+        :param args: positional args
+        :param kwargs: keyword args
+        """
+        self._f_obj.write(*args, **kwargs)
+
+    def flush(self):
+        """ Calls directly to the file object's flush method."""
+        self._f_obj.flush()
 
     def tell(self):
         """ Returns the current position of the cursor in the file object
