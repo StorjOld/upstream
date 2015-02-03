@@ -35,7 +35,8 @@ install_requirements = [
     'py3-progressbar==2.4dev',
     'requests',
     'six',
-    'storjtorrent'
+    'storjtorrent',
+    'file_encryptor>=0.2.8'
 ]
 
 test_requirements = [
