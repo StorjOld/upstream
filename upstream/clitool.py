@@ -252,6 +252,127 @@ def upload(args):
     print("upstream download --uri", " ".join(shard_info), "--dest <filename>")
 
 
+def seed(args):
+    """ Controls actions for seeding a file to the network
+
+    For the moment, seeding will shard, encrypt and seed each shard. When
+    downstream-node is upgraded properly, there will be an interactive process
+    to ensure shards are properly assigned to farmers.
+
+    :param args: Argparse namespace
+    """
+
+    # Prepare to shard file.
+    shard_size = parse_shard_size(args.shard_size)
+
+    try:
+        filepath = Streamer.check_path(args.file)
+    except FileError as e:
+        sys.stderr.write('%s\n' % str(e))
+        sys.exit(1)
+
+    streamer = Streamer(args.server)
+    shards = calculate_shards(args, shard_size, filepath)
+
+    # Generate cryptographically suitable passphrase.
+    possible_characters = string.ascii_letters + string.digits
+    rng = random.SystemRandom()
+    pass_length = 40
+    passphrase = ''.join([rng.choice(possible_characters)
+                          for i in range(pass_length)])
+
+    shard_info = {
+        'shard_size': shard_size,
+        'passphrase': passphrase,
+        'shard_catalog': {}
+    }
+
+    # Create a folder for these encrypted shards.
+    head, tail = os.path.split(filepath)
+    name_underscored = tail.replace('.', '_')
+    folder_path = os.path.join(head, name_underscored)
+    if not os.path.isdir(folder_path):
+        os.makedirs(folder_path)
+
+    for idx, shard in enumerate(shards):
+        i = idx + 1
+        shard_index = str(i)
+        start = shard[0]
+        callback = SeedCallback(i)
+        shard = streamer.encrypt(
+            args.file,
+            passphrase=passphrase,
+            start_pos=start,
+            shard_size=shard_size,
+            callback=callback.callback
+        )
+
+        # Create a shard sub-folder
+        shard_subfolder = os.path.join(folder_path, 'shard_' + shard_index)
+        if not os.path.isdir(shard_subfolder):
+            os.makedirs(shard_subfolder)
+
+        # Write shard.data to file and record shard.key and shard.hash into
+        # the shard_info array.
+        savepath = os.path.join(shard_subfolder, shard['hash'])
+
+        # copy from shard.path to savepath
+        if args.verbose:
+            print('Saving encrypted chunk ', shard_index, ' to file.')
+        shutil.move(shard['path'], savepath)
+
+        shard_info['shard_catalog'][shard_index] = {
+            'infohash': '',
+            'filehash': shard['hash'],
+            'key': shard['key']
+        }
+
+        # Create our torrent
+        if callable(callback.callback):
+            callback.callback(2)
+
+        torrent_filename = ''.join([shard['hash'], '.torrent'])
+        StorjTorrent().generate_torrent(
+            [], shard_directory=shard_subfolder, torrent_name=torrent_filename)
+
+        # ...then add the infohash to the file and start seeding it.
+        if callable(callback.callback):
+            callback.callback(4)
+        # torrent_path = os.path.join(savepath, torrent_filename)
+        infohash = StorjTorrent().get_hash(
+            [], torrent_filename).to_string().encode('hex')
+        shard_info['shard_catalog'][shard_index]['infohash'] = infohash
+
+        st = StorjTorrent()
+        st.add_torrent(torrent_filename, True)
+
+        # Ultimately, there will be code here for talking to the verification
+        # server. May have to switch this to separate threads...
+        # TODO
+        callback.bar.finish()
+        sys.stdout.flush()
+
+    # Write shard catalog to file.
+    catalog_path = os.path.join(folder_path, 'shard_catalog.json')
+    with open(catalog_path, 'wb') as fp:
+        json.dump(shard_info, fp)
+
+    print('\nShard information catalog written to: ', catalog_path,
+          '\n\nThis catalog is required to retrieve your chunks, decrypt them '
+          'and reconstitute them into your original file.')
+
+    # Eventually, we should stop seeding and update our progress. For now,
+    # we will just automatically stop seeding after a pre-determined time.
+    count = 60
+    while (count >= 0):
+        if count % 60 == 0:
+            print('Seeding will cease in', (count / 60), 'minutes.')
+        count -= 1
+        time.sleep(1)
+    st.halt_session()
+    print('Seeding of shards has ceased.')
+
+
 def download(args):
     """ Controls actions for downloading
 
@@ -291,14 +412,6 @@ def download(args):
 
     print("\nDownloaded to %s." % savepath)
     return fname
-
-
-def seed(args):
-    """ Controls actions for seeding a file to the network
-
-    :param args: Argparse namespace
-    """
-    pass
 
 
 def retrieve(args):
