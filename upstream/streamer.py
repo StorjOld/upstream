@@ -24,17 +24,20 @@
 # SOFTWARE.
 
 import os
+import hashlib
+import tempfile
 
 from requests_toolbelt import MultipartEncoder
 from six.moves.urllib.request import urlopen
 from six.moves.urllib.error import URLError
-
 
 import requests
 
 from upstream.shard import Shard
 from upstream.file import ShardFile, SizeHelpers
 from upstream.exc import FileError, ResponseError, ConnectError, ShardError
+
+from file_encryptor.convergence import encrypt_file_inline
 
 
 class Streamer(object):
