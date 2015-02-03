@@ -234,7 +234,7 @@ def upload(args):
     for idx, shard in enumerate(shards):
         i = idx + 1
         start = shard[0]
-        callback = ProgressCallback()
+        callback = UploadCallback()
         shard = streamer.upload(
             args.file,
             start_pos=start,
