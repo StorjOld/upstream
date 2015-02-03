@@ -67,6 +67,83 @@ class UploadCallback(object):
             self.bar.update(values[0])
 
 
+class StatusMessageWidget(progressbar.widgets.Widget):
+
+    """ Custom progressbar widget that displays a custom status message
+    depending on the current progressbar value.
+
+    :param progressbar.widgets.Widget: Inherit progressbar Widget
+    """
+
+    def __init__(self, messages):
+        """ Initialize the status message widget.
+
+        :param messages: Array of status messages.
+        :type messages: list
+        """
+        self.messages = messages
+        self.current = 0
+
+    def update(self, pbar):
+        """ Method triggered on update of progressbar.
+
+        :param pbar: Progressbar object.
+        :returns: Status message corresponding with current state.
+        :rtype: str
+        """
+        if pbar.finished:
+            self.current = len(self.messages) - 1
+        elif pbar.currval >= self.current:
+            self.current += 1
+
+        return self.messages[self.current]
+
+
+class SeedCallback(object):
+
+    """ Creates and maintains a progressbar for a given shard"""
+    status_messages = [
+        'Preparing shard...',
+        'Encrypting shard...',
+        'Preparing shard torrent...',
+        'Sending infohash to verification server...',
+        'Waiting for verification server to retrieve shard...',
+        'Assigning shard to farmers...',
+        'Verifying farmers receipt of shard...',
+        'Done!'
+    ]
+
+    def __init__(self, shard_index):
+        """ Initialize the SeedCallback object.
+
+        :param shard_index: Relative position of the shard in the parent file.
+        :type shard_index: int
+        """
+        self.caption = 'Shard {}: '.format(shard_index)
+        self.status_state = 0
+        self.bar = None
+        self.started = False
+
+    def callback(self, state):
+        """ Callback to trigger creation and maintenance of progressbar.
+
+        :param state: The current state of the shard seeding.
+        :type state: int
+        """
+        if not self.bar:
+            self.bar = progressbar.ProgressBar(
+                maxval=len(SeedCallback.status_messages) - 1,
+                widgets=[
+                    self.caption, progressbar.Percentage(),
+                    ' ', progressbar.Bar(),
+                    ' ', StatusMessageWidget(SeedCallback.status_messages)
+                ]
+            )
+        if not self.started:
+            self.bar.start()
+            self.bar.update(state)
+
+
 def check_and_get_dest(dest):
     """ Validates and returns a download file and path
 
