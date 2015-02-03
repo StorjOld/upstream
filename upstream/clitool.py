@@ -42,9 +42,10 @@ from upstream.shard import Shard
 from upstream.file import SizeHelpers
 from upstream.streamer import Streamer
 from upstream.exc import FileError
+from storjtorrent import StorjTorrent
 
 
-class ProgressCallback(object):
+class UploadCallback(object):
 
     def __init__(self):
         self.bar = None
