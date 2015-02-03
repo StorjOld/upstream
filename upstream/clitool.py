@@ -468,7 +468,7 @@ def parse_args():
     seed_parser = subparser.add_parser('seed', help='Seed the shards for a '
                                        'specified file')
     seed_parser.add_argument('--shard-size',
-                             default=SizeHelpers.mib_to_bytes(250),
+                             default=parse_shard_size('10m'),
                              help='Size of shards to break file into and to '
                              'seed, max: 250m, default'': 250m. Ex. 25m - file'
                              ' will be broken into 25 MB shards and seeded '
