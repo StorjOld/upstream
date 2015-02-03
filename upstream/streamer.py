@@ -59,6 +59,56 @@ class Streamer(object):
         except URLError:
             raise ConnectError("Could not connect to server.")
 
+    def encrypt(self, filepath, passphrase=None, shard_size=0, start_pos=0,
+                read_size=1024, callback=None):
+        """ Uses default encryption library to encrypt each shard locally.
+
+        :param filepath: Path to file as a string
+        :return: upstream.shard.Shard
+        """
+        if callable(callback):
+            callback(0)
+
+        validpath = self.check_path(filepath)
+
+        if shard_size == 0:
+            shard_size = SizeHelpers.mib_to_bytes(10)
+
+        shard = ShardFile(
+            validpath, 'rb',
+            shard_size=shard_size,
+            start_pos=start_pos,
+            read_size=read_size
+        )
+
+        # This will only work on Unix-like OS for now.
+        shard_dump = tempfile.NamedTemporaryFile(delete=False, mode='ab')
+        for slice in shard:
+            shard_dump.write(slice)
+        shard_dump.close()
+
+        if callable(callback):
+            callback(1)
+
+        key = encrypt_file_inline(shard_dump.name, passphrase)
+
+        # Generate the SHA-1 hash of the encrypted_shard
+        m = hashlib.sha1()
+
+        with open(shard_dump.name, 'rb') as f:
+            while True:
+                shard = f.read(shard_size)
+                if not shard:
+                    break
+                m.update(shard)
+        hash = m.hexdigest()
+
+        return {
+            'path': shard_dump.name,
+            'key': key.encode('hex'),
+            'hash': hash
+        }
+
     def upload(self, filepath, shard_size=0, start_pos=0, read_size=1024,
                callback=None):
         """ Uploads a shard via POST to the specified node
